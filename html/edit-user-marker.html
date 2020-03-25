@@ -1,0 +1,115 @@
+<meta charset="UTF-8">
+
+<script>
+	// Extract variables from URL
+	function getUrlVars() {
+		var vars = {};
+		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		    vars[key] = value;
+		});
+		return vars;
+	}
+
+
+////
+// marker-edit-form validation and POST
+
+function validateUserMarkerForm() {
+	if (document.forms["userMarkerForm"]["title"].value == "") {
+		alert("Otsikko puuttuu");
+		return false;
+	}
+	if (document.forms["userMarkerForm"]["summary"].value == "") {
+		alert("Lyhyt kuvaus puuttuu");
+		return false;
+	}
+	if (document.forms["userMarkerForm"]["description"].value == "") {
+		alert("Tarkka kuvaus puuttuu");
+		return false;
+	}
+	if (document.forms["userMarkerForm"]["radius"].value == "") {
+		alert("Etäisyys puuttuu");
+		return false;
+	}
+	
+	if (document.forms["userMarkerForm"]["nick"].value == "") {
+		alert("Nimimerkki puuttuu");
+		return false;    
+	}
+	
+	if (document.forms["userMarkerForm"]["password"].value == "") {
+		alert("Salasana puuttuu");
+		return false;    
+	}
+	
+	if (document.forms["userMarkerForm"]["need"].checked) {
+		var role = "infected";
+	} else {
+		var role = "helper";
+	}
+	
+	var	password = document.forms["userMarkerForm"]["password"].value
+	//var hash = md5(password + lat + lon); // Tai jotain :)
+	var hash = password;
+	
+	var lat = getUrlVars()["lat"];
+	var lon = getUrlVars()["lon"];
+	
+	var dpValues = {
+		"role":			role,
+		"title": 		document.forms["userMarkerForm"]["title"].value,
+		"summary": 		document.forms["userMarkerForm"]["summary"].value,
+		"description": 	document.forms["userMarkerForm"]["description"].value,
+		"location":		{ "lat": lat, "lon": lon },
+		"radius": 		document.forms["userMarkerForm"]["radius"].value,
+		"nick": 		document.forms["userMarkerForm"]["nick"].value,
+		"passhash": 	hash
+	}
+	
+	console.log("Valid form. Could POST these:", dpValues);
+	
+	var postUrl = "http://lakka.kapsi.fi:62245/api/datapoints.json";
+
+	$.post(postUrl, dpValues)
+		.done(function(data) {
+			console.log("Got reply:", data);
+		})
+		.fail(function(data) {
+			console.log("Error", data);		
+		});
+};
+// marker-edit-form validation and POST
+////
+</script>
+
+
+
+<form id="marker-edit-form" name="userMarkerForm" onsubmit="return validateUserMarkerForm()">
+	<input type='radio' id='need' name='userMarker' checked>Tarvitsen apua</input><br>
+	<input type='radio' id='offer' name='userMarker' >Tarjoan apua</input><br>
+	<br>
+	Otsikko<br>
+	<input type='text' autocomplete='off' id='title' name='userMarker' value="asd"></input><br>
+	Lyhyt kuvaus<br>
+	<textarea rows="3" autocomplete="off" id='summary' name='userMarker'>fgh</textarea><br>
+	Tarkka kuvaus<br>
+	<textarea rows="5" autocomplete="off" id='description' name='userMarker'>jkl</textarea><br>
+	<br>
+	Etäisyys (metriä)<br>
+	<input min="50" max="10000" value="100" step="50" type='number' autocomplete="off" id='radius' name='userMarker'></input><br>
+	<br>
+	Nimimerkki<br>
+	<input type='text' id='nick' name='userMarker' value="jkl"></input><br>
+	Salasana<br>
+	<input type='password' id='password' name='userMarker' value="öä'"></input><br>
+	<br>
+	<br>
+	<button type="submit">
+		Lähetä
+	</button>
+</form>
+<br>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" 
+		integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+		crossorigin="anonymous">
+</script>
