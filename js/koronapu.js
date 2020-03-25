@@ -139,34 +139,33 @@ function validateMarkerEditForm() {
 		"title": 		document.forms["markerEditForm"]["title"].value,
 		"summary": 		document.forms["markerEditForm"]["summary"].value,
 		"description": 	document.forms["markerEditForm"]["description"].value,
-		"location":		{ "lat": lat, "lon": lon },
+		"location":		[lat, lon],
 		"radius": 		parseInt(document.forms["markerEditForm"]["radius"].value),
 		"name": 		document.forms["markerEditForm"]["name"].value,
 		"passhash": 	hash
 	}
 	
 	console.log("Valid form. Could POST these:", dpValues);
-	console.log("radius is typeof: ", typeof(dpValues["radius"]));
 	
 	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
-	console.log("PostUrl: ", postUrl);
+	// console.log("PostUrl: ", postUrl);
 
+	console.log("locations: ", [ (Math.random()-.5)*360, (Math.random()-.5)*180 ], dpValues["location"]);
 
 	/*
 	*/
 		
 	$.post(postUrl, {
-		"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
-		"name": "apinatesti2",
+		//"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
+		"location": dpValues["location"],
+		"name": dpValues["name"],
 		"summary": Date.now(),
 		"description": "Lorem ipsum dolor sit amet",
-		//"radius": dpValues["radius"]
-		"radius": parseInt( Math.random() * 10 ) * 100
+		"radius": dpValues["radius"]
+		//"radius": parseInt( Math.random() * 10 ) * 100
 	}, console.log).done(function() {
-        console.log("Successsss");
+        console.log("Form POSTed");
       });
-        console.log("done");
-
 };
 // marker-edit-form validation and POST
 //// //// 
