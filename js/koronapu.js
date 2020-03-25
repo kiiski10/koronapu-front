@@ -140,41 +140,32 @@ function validateMarkerEditForm() {
 		"summary": 		document.forms["markerEditForm"]["summary"].value,
 		"description": 	document.forms["markerEditForm"]["description"].value,
 		"location":		{ "lat": lat, "lon": lon },
-		"radius": 		document.forms["markerEditForm"]["radius"].value,
+		"radius": 		parseInt(document.forms["markerEditForm"]["radius"].value),
 		"name": 		document.forms["markerEditForm"]["name"].value,
 		"passhash": 	hash
 	}
 	
 	console.log("Valid form. Could POST these:", dpValues);
+	console.log("radius is typeof: ", typeof(dpValues["radius"]));
 	
-	var postUrl = "stash.pekka.pl:8080/api/" + role + ".json";
+	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
 	console.log("PostUrl: ", postUrl);
-	
-	// TÄMÄ	
-	var jqxhr = $.post( "http://stash.pekka.pl:8080/api/infected.json", function() {
-  alert( "success" );
-})
-  .done(function() {
-    alert( "second success" );
-  })
-  .fail(function() {
-    alert( "error" );
-  })
-  .always(function() {
-    alert( "finished" );
-  });
+
+
 	/*
-	// TAI TÄMÄ	
-	$.post("http://stash.pekka.pl:8080/api/infected.json", {
+	*/
+		
+	$.post(postUrl, {
 		"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
 		"name": "apinatesti2",
 		"summary": Date.now(),
 		"description": "Lorem ipsum dolor sit amet",
-		"radius": parseInt( Math.random() * 10 ) * 100
+		"radius": dpValues["radius"]
+		//"radius": parseInt( Math.random() * 10 ) * 100
 	}, console.log).done(function() {
         console.log("Successsss");
       });
-	*/
+        console.log("done");
 
 };
 // marker-edit-form validation and POST
