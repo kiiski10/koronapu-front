@@ -160,8 +160,8 @@ function validateMarkerEditForm() {
 		"name": "apinatesti2",
 		"summary": Date.now(),
 		"description": "Lorem ipsum dolor sit amet",
-		"radius": dpValues["radius"]
-		//"radius": parseInt( Math.random() * 10 ) * 100
+		//"radius": dpValues["radius"]
+		"radius": parseInt( Math.random() * 10 ) * 100
 	}, console.log).done(function() {
         console.log("Successsss");
       });
