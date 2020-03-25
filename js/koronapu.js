@@ -127,7 +127,7 @@ function validateMarkerEditForm() {
 	if (document.forms["markerEditForm"]["need"].checked) {
 		var role = "infected";
 	} else {
-		var role = "helper";
+		var role = "helpers";
 	}
 	
 	console.log("Setting dpValues for point in", lat, lon);
