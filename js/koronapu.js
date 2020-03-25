@@ -30,11 +30,16 @@ function centerToPosition(position) {
 	mymap.flyTo([position.coords.latitude, position.coords.longitude], 12);
 }
 
+// Center the map to users geolocation
 function centerToMyPosition() {
-	// Center the map to users geolocation
 	$.geolocation.get().done(centerToPosition).fail(noLocation);
-
 }
+
+// Keep location for new marker in memory
+function updateUserMarkerLocation(e) {
+	userMarkerLocation = e.target.getLatLng()
+	console.log(e.target.getLatLng());
+};
 
 var newMarkerIcon = L.icon({
     iconUrl: 'img/new-location.png',
@@ -43,9 +48,10 @@ var newMarkerIcon = L.icon({
     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
 });
 
-function userAddMarker() {	
+function userAddMarker() {		// TODO lat ja lon pitää ottaa markkerin sijainnista, ei 'mymap.getCenter()':illä
 	$.geolocation.get().done(mymap.setTo).fail(noLocation);	
 	latlng = mymap.getCenter();
+	
 	lat = latlng.lat
 	lng = latlng.lng
 	if (mymap.getZoom() < 13) {	
@@ -66,16 +72,17 @@ function userAddMarker() {
             autoPan: true,
 			icon: newMarkerIcon
 		})
+		.on('dragend', updateUserMarkerLocation)
 		.addTo(mymap)
-		.bindPopup($('#marker-edit-frame').html(),
-		//.bindPopup("<iframe class='markerEditPopup' src='html/edit-user-marker.html?lat=" + lat + "&lon=" + lng + "'></iframe><br><button onclick='closeNewMarkerEditor()' type='button'>Peruuta</button>",
+		.bindPopup($('#marker-edit-frame').html(),		
 			{
 				maxWidth: 290, // Too big value hides the Send button on small screens
 				maxHeight: 400,
 				closeOnClick: false,
 				keepInView: true,
 			}
-		)
+		);
+		updateUserMarkerLocation(latlng);
 }
 
 
@@ -84,9 +91,8 @@ function userAddMarker() {
 //// //// 
 // marker-edit-form validation and POST
 
-function validateMarkerEditForm() {
-
-	// TODO lat ja lon pitää ottaa markkerin sijainnista, ei map.getCenter():illä
+function validateMarkerEditForm(userMarker) {
+	console.log(userMarker);
 	lat = latlng.lat;
 	lon = latlng.lng;
 	var	password = document.forms["markerEditForm"]["password"].value
@@ -145,12 +151,8 @@ function validateMarkerEditForm() {
 		"passhash": 	hash
 	}
 	
-	console.log("Valid form. Could POST these:", dpValues);
-	
+	console.log("Valid form. POSTing these:", dpValues);	
 	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
-	// console.log("PostUrl: ", postUrl);
-
-	console.log("locations: ", [ (Math.random()-.5)*360, (Math.random()-.5)*180 ], dpValues["location"]);
 
 	/*
 	*/
@@ -286,17 +288,14 @@ var infected = [];
 //var infected_list_url = "https://kalasivut.net/koronapu/data/infected.json";
 var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
 
-var userMarker = null;
-centerToMyPosition();
-var latlng = mymap.getCenter();
-
+var userMarker = undefined;
 
 $(document).ready(function(e){
 	$("body").scrollTop(0);
-	$('marker-edit-form').submit(function(e) {
-    	console.log("tähän lähetysjuttuja");
-		e.preventDefault(e);
-	});
+	centerToMyPosition();
+	var latlng = mymap.getCenter();
+	var userMarkerLocation = latlng;
+
 });
 
 
