@@ -161,10 +161,9 @@ function validateMarkerEditForm(userMarker) {
 		//"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
 		"location": dpValues["location"],
 		"name": dpValues["name"],
-		"summary": Date.now(),
-		"description": "Lorem ipsum dolor sit amet",
+		"summary": dpValues["summary"],
+		"description": dpValues["description"],
 		"radius": dpValues["radius"]
-		//"radius": parseInt( Math.random() * 10 ) * 100
 	}, console.log).done(function() {
         console.log("Form POSTed");
       });
