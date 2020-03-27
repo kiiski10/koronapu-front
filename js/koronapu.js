@@ -103,10 +103,6 @@ function validateMarkerEditForm(userMarker) {
 	var hash = $.md5(password + lat + lon) + salt;
 	console.log("Hash generated:", hash);
 	
-	if (document.forms["markerEditForm"]["title"].value == "") {
-		alert("Otsikko puuttuu");
-		return false;
-	}
 	if (document.forms["markerEditForm"]["summary"].value == "") {
 		alert("Lyhyt kuvaus puuttuu");
 		return false;
@@ -166,6 +162,7 @@ function validateMarkerEditForm(userMarker) {
 		"radius": dpValues["radius"]
 	}, console.log).done(function() {
         console.log("Form POSTed");
+        location.reload();
       });
 };
 // marker-edit-form validation and POST
@@ -225,7 +222,7 @@ function addAsHelperMarker(i) {
 		radius: i["radius"]
 	}).addTo(mymap);	
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['description'] + "<br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
+		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['summary'] + "<br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
 		{ keepInView: true }
 	);
 	console.log("Helper added:", i["name"]);
