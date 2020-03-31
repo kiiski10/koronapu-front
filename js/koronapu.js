@@ -204,7 +204,7 @@ function addAsInfectedMarker(i) {
 	})
 	.addTo(mymap)
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Potilas<br><br>" + i["summary"] + "<br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>", 
+		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Potilas<br><br>" + i["summary"] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>", 
 		// TODO: Kuinka saada muuttuja i:n jutut htmlään (ehkä jqueryllä päivittää otsikon ja kuvauksen yms kun popup avataan) nyt unille :)
 		{ keepInView: true }
 	);
@@ -222,7 +222,7 @@ function addAsHelperMarker(i) {
 		radius: i["radius"]
 	}).addTo(mymap);	
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['summary'] + "<br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
+		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['summary'] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
 		{ keepInView: true }
 	);
 	console.log("Helper added:", i["name"]);
