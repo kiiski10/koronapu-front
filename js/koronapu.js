@@ -184,12 +184,13 @@ function addAsInfectedMarker(i) {
 		fillOpacity: 0.3,
 		radius: i["radius"]
 	})
-	.addTo(mymap)
-	L.marker(i["location"]).addTo(clustered_group)
+	.addTo(circle_group)
+	L.marker(i["location"]).addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
 	console.log("Sick Added:", i["name"]);
+
 };
 
 // 																				Add markers for helpers
@@ -200,8 +201,8 @@ function addAsHelperMarker(i) {
 		fillColor: 'rgb(0, 255, 0)',
 		fillOpacity: 0.3,
 		radius: i["radius"]
-	}).addTo(mymap);
-	L.marker(i["location"]).addTo(clustered_group)
+	}).addTo(circle_group);
+	L.marker(i["location"]).addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
@@ -222,10 +223,12 @@ function hideMessagingPopup() {
 
 function updateLayers() {
 	var currentZoom = mymap.getZoom();
-	if (currentZoom <= 12) {
+	if (currentZoom <= 10) {
 		console.log("zoomlevel", currentZoom);
+		mymap.removeLayer(circle_group);
 	} else {
 		console.log("zoomlevel", currentZoom);
+		mymap.addLayer(circle_group);
 	};
 };
 
@@ -265,7 +268,9 @@ var helpers_list_url = "http://stash.pekka.pl:8080/api/helpers.json";
 var infected = [];
 //var infected_list_url = "https://kalasivut.net/koronapu/data/infected.json";
 var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
-var clustered_group = L.markerClusterGroup({singleMarkerMode: false});
+
+var pin_group = new L.markerClusterGroup({singleMarkerMode: false});
+var circle_group = new L.FeatureGroup();
 
 
 $(document).ready(function(e){
@@ -281,7 +286,8 @@ var response = $.getJSON( infected_list_url, function() {})
 		for (var index in response["responseJSON"]) {
 			addAsInfectedMarker(response["responseJSON"][index]);
 		};
-		mymap.addLayer(clustered_group);
+		mymap.addLayer(pin_group);
+		mymap.addLayer(circle_group);
 		console.log("Contents of 'infected.json' added as markers");
 	})
 	.fail(function() {
@@ -293,10 +299,10 @@ var response = $.getJSON( infected_list_url, function() {})
 var response2 = $.getJSON( helpers_list_url, function() {})
 	.done(function() {
 		for (var index in response2["responseJSON"]) {
-    		addAsHelperMarker(response2["responseJSON"][index]);
-	    };
-
-		mymap.addLayer(clustered_group);
+			addAsHelperMarker(response2["responseJSON"][index]);
+		};
+		mymap.addLayer(pin_group);
+		mymap.addLayer(circle_group);
 		console.log("Contents of 'helpers.json' added as markers");
 	})
 	.fail(function() {
