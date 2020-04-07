@@ -175,7 +175,7 @@ function noLocation(error) {
   }
 }
 
-// Add markers for infected users
+// 																				Add markers for infected users
 function addAsInfectedMarker(i) {
 	L.circle(i["location"], {
 		color: 'black',
@@ -185,14 +185,14 @@ function addAsInfectedMarker(i) {
 		radius: i["radius"]
 	})
 	.addTo(mymap)
-	L.marker(i["location"]).addTo(mymap)
+	L.marker(i["location"]).addTo(clustered_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
 	console.log("Sick Added:", i["name"]);
 };
 
-// Add markers for helpers
+// 																				Add markers for helpers
 function addAsHelperMarker(i) {
 	L.circle(i["location"], {
 		color: 'black',
@@ -201,7 +201,7 @@ function addAsHelperMarker(i) {
 		fillOpacity: 0.3,
 		radius: i["radius"]
 	}).addTo(mymap);
-	L.marker(i["location"]).addTo(mymap)
+	L.marker(i["location"]).addTo(clustered_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
@@ -265,7 +265,7 @@ var helpers_list_url = "http://stash.pekka.pl:8080/api/helpers.json";
 var infected = [];
 //var infected_list_url = "https://kalasivut.net/koronapu/data/infected.json";
 var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
-
+var clustered_group = L.markerClusterGroup({singleMarkerMode: false});
 
 
 $(document).ready(function(e){
@@ -281,6 +281,7 @@ var response = $.getJSON( infected_list_url, function() {})
 		for (var index in response["responseJSON"]) {
 			addAsInfectedMarker(response["responseJSON"][index]);
 		};
+		mymap.addLayer(clustered_group);
 		console.log("Contents of 'infected.json' added as markers");
 	})
 	.fail(function() {
@@ -294,6 +295,8 @@ var response2 = $.getJSON( helpers_list_url, function() {})
 		for (var index in response2["responseJSON"]) {
     		addAsHelperMarker(response2["responseJSON"][index]);
 	    };
+
+		mymap.addLayer(clustered_group);
 		console.log("Contents of 'helpers.json' added as markers");
 	})
 	.fail(function() {
