@@ -9,7 +9,6 @@ function getUrlVars() {
 	return vars;
 }
 
-
 function generateSalt() {
 	var generateSalt = new Math.seedrandom(window.crypto.getRandomValues(new Uint32Array(1)));	// CSPRN seed
 	parts = [];
@@ -21,8 +20,6 @@ function generateSalt() {
 	salt = parts.join("");
 	return salt;
 }
-
-
 
 // Map centering
 function centerToPosition(position) {
@@ -37,24 +34,20 @@ function centerToMyPosition() {
 
 // Keep location for new marker in memory
 function updateUserMarkerLocation(e) {
-	// userMarker.setLatLng(e.target.getLatLng());
 	$('input[name="lat"]').val(e.target.getLatLng()["lat"]);
 	$('input[name="lon"]').val(e.target.getLatLng()["lon"]);
 	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
 };
 
 var newMarkerIcon = L.icon({
-    iconUrl: 'img/new-location.png',
-    iconSize:     [128, 128], // size of the icon
-    iconAnchor:   [65, 124], // point of the icon which will correspond to marker's location
-    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+	iconUrl: 			'img/new-location.png',
+	iconSize:     [128, 128],	// size of the icon
+	iconAnchor:   [65, 124],	// point of the icon which will correspond to marker's location
+	popupAnchor:  [0, 0]			// point from which the popup should open relative to the iconAnchor
 });
 
 function userAddMarker() {
 	$.geolocation.get().done(mymap.setTo).fail(noLocation);
-	// TODO lat ja lon pitää ottaa markkerin sijainnista, ei 'mymap.getCenter()':illä
-
-
 	lat = mymap.getCenter().lat;
 	lng = mymap.getCenter().lng;
 	console.log("ADD MARKER");
@@ -87,24 +80,17 @@ function userAddMarker() {
 		userMarker.setLatLng([lat, lng]);
 }
 
-
-
-
 //// ////
 // marker-edit-form validation and POST
-
 function validateMarkerEditForm() {
-
-	console.log("USER MARKER:", userMarker.getLatLng().lat, userMarker.getLatLng().lng);
-
 	lat = userMarker.getLatLng().lat;
 	lon = userMarker.getLatLng().lng;
-
 	console.log("VALIDATE MARKER INFO FOR POST:", lat, lon);
 
 	var	password = document.forms["markerEditForm"]["password"].value
 	var salt = generateSalt();
 	var hash = $.md5(password + lat + lon) + salt;
+
 	console.log("Salt:", salt);
 	console.log("Hash:", hash);
 
@@ -148,16 +134,12 @@ function validateMarkerEditForm() {
 		"radius": 		parseInt(document.forms["markerEditForm"]["radius"].value),
 		"name": 		document.forms["markerEditForm"]["name"].value,
 		"passhash": 	hash
-	}
+	};
 
 	console.log("Valid form. POSTing these:", dpValues);
 	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
 
-	/*
-	*/
-
 	$.post(postUrl, {
-		//"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
 		"location": dpValues["location"],
 		"name": dpValues["name"],
 		"summary": dpValues["summary"],
@@ -168,15 +150,13 @@ function validateMarkerEditForm() {
         location.reload();
       });
 };
+
 // marker-edit-form validation and POST
 //// ////
-
-
 function closeNewMarkerEditor() {
 	console.log("close marker editor");
 	mymap.closePopup();
 }
-
 
 function noLocation(error) {
   switch(error.code) {
@@ -195,7 +175,6 @@ function noLocation(error) {
   }
 }
 
-
 // Add markers for infected users
 function addAsInfectedMarker(i) {
 	L.circle(i["location"], {
@@ -207,13 +186,11 @@ function addAsInfectedMarker(i) {
 	})
 	.addTo(mymap)
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Potilas<br><br>" + i["summary"] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
-		// TODO: Kuinka saada muuttuja i:n jutut htmlään (ehkä jqueryllä päivittää otsikon ja kuvauksen yms kun popup avataan) nyt unille :)
+		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
 	console.log("Sick Added:", i["name"]);
 };
-
 
 // Add markers for helpers
 function addAsHelperMarker(i) {
@@ -225,12 +202,11 @@ function addAsHelperMarker(i) {
 		radius: i["radius"]
 	}).addTo(mymap);
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['summary'] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
+		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
 	console.log("Helper added:", i["name"]);
 };
-
 
 // Messaging popup show
 function showMessagingPopup() {
@@ -238,13 +214,11 @@ function showMessagingPopup() {
 	console.log("Show messaging");
 };
 
-
 // Messaging popup hide
 function hideMessagingPopup() {
 	$("#messaging-popup-container").hide();
 	console.log("Hide messaging");
 };
-
 
 function updateLayers() {
 	var currentZoom = mymap.getZoom();
@@ -297,9 +271,7 @@ var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
 $(document).ready(function(e){
 	$("body").scrollTop(0);
 	centerToMyPosition();
-	var latlng = mymap.getCenter();
 	userMarker = L.marker(mymap.getCenter());
-	// window.setInterval(logMarkerLocation, 1000);				// DEBUG MARKER LOCATION
 });
 
 
@@ -307,8 +279,8 @@ $(document).ready(function(e){
 var response = $.getJSON( infected_list_url, function() {})
 	.done(function() {
 		for (var index in response["responseJSON"]) {
-    		addAsInfectedMarker(response["responseJSON"][index]);
-	    };
+			addAsInfectedMarker(response["responseJSON"][index]);
+		};
 		console.log("Contents of 'infected.json' added as markers");
 	})
 	.fail(function() {

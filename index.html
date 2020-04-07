@@ -9,6 +9,7 @@
 		 Ilmoita sijainti ja jätä yhteystieto lorem ipsum lorem ipsum" />
 		<title>SOAPP</title>
 		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/MarkerCluster.css">
 		<link rel="stylesheet" href="css/koronapu.css">
 	</head>
 	<body>
@@ -69,7 +70,15 @@
 				<button type="button" onclick='closeNewMarkerEditor()' type='button'>Peruuta</button>
 			</form>
 		</div>
-		<!-- marker edit popup -->
+
+		<!-- user marker popup -->
+		<div id="datapoint-popup" class='popup'>
+			<h3>name</h3>
+			role<br>
+			<br>
+			summary<p>description</p><br>
+			<button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button>
+		</div>
 
 
 		<script src="https://code.jquery.com/jquery-3.4.1.min.js"
@@ -77,7 +86,8 @@
 				crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
 				crossorigin="anonymous"></script>
-  		<script src="js/geoLocation.js"></script>
+		<script src="js/markercluster.js"></script>
+  	<script src="js/geoLocation.js"></script>
 
   		<!-- https://github.com/davidbau/seedrandom -->
   		<script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
