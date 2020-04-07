@@ -18,7 +18,7 @@ function generateSalt() {
 		i++;
 		parts.push((generateSalt() * 1000000000000000000).toString(36));
 	}
-	salt = parts.join("");	
+	salt = parts.join("");
 	return salt;
 }
 
@@ -37,8 +37,10 @@ function centerToMyPosition() {
 
 // Keep location for new marker in memory
 function updateUserMarkerLocation(e) {
-	userMarkerLocation = e.target.getLatLng()
-	console.log(e.target.getLatLng());
+	// userMarker.setLatLng(e.target.getLatLng());
+	$('input[name="lat"]').val(e.target.getLatLng()["lat"]);
+	$('input[name="lon"]').val(e.target.getLatLng()["lon"]);
+	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
 };
 
 var newMarkerIcon = L.icon({
@@ -48,33 +50,33 @@ var newMarkerIcon = L.icon({
     popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
 });
 
-function userAddMarker() {		// TODO lat ja lon pitää ottaa markkerin sijainnista, ei 'mymap.getCenter()':illä
-	$.geolocation.get().done(mymap.setTo).fail(noLocation);	
-	latlng = mymap.getCenter();
-	
-	lat = latlng.lat
-	lng = latlng.lng
-	if (mymap.getZoom() < 13) {	
-		console.log("flying to", lat, lng);		
-		mymap.flyTo([lat, lng], 13);
-	} else {		
-		console.log("flying to", lat, lng);		
-		mymap.flyTo([lat, lng], 13);	
-	}	
+function userAddMarker() {
+	$.geolocation.get().done(mymap.setTo).fail(noLocation);
+	// TODO lat ja lon pitää ottaa markkerin sijainnista, ei 'mymap.getCenter()':illä
+
+
+	lat = mymap.getCenter().lat;
+	lng = mymap.getCenter().lng;
+	console.log("ADD MARKER");
+	console.log("  ", lat);
+	console.log("  ", lng);
+
+	mymap.flyTo([lat, lng], 13);
 	mymap.closePopup();
+
 	if (userMarker != undefined) {
 		userMarker.remove();
-		
 	};
+
 	userMarker =  L.marker([lat, lng],
-		{			
+		{
 			draggable: true,
             autoPan: true,
 			icon: newMarkerIcon
 		})
 		.on('dragend', updateUserMarkerLocation)
 		.addTo(mymap)
-		.bindPopup($('#marker-edit-frame').html(),		
+		.bindPopup($('#marker-edit-frame').html(),
 			{
 				maxWidth: 290, // Too big value hides the Send button on small screens
 				maxHeight: 400,
@@ -82,27 +84,30 @@ function userAddMarker() {		// TODO lat ja lon pitää ottaa markkerin sijainnis
 				keepInView: true,
 			}
 		);
-		updateUserMarkerLocation(latlng);
+		userMarker.setLatLng([lat, lng]);
 }
 
 
 
 
-//// //// 
+//// ////
 // marker-edit-form validation and POST
 
-function validateMarkerEditForm(userMarker) {
-	console.log(userMarker);
-	lat = latlng.lat;
-	lon = latlng.lng;
+function validateMarkerEditForm() {
+
+	console.log("USER MARKER:", userMarker.getLatLng().lat, userMarker.getLatLng().lng);
+
+	lat = userMarker.getLatLng().lat;
+	lon = userMarker.getLatLng().lng;
+
+	console.log("VALIDATE MARKER INFO FOR POST:", lat, lon);
+
 	var	password = document.forms["markerEditForm"]["password"].value
-	
 	var salt = generateSalt();
-	console.log("Salt generated:", salt);
-	
 	var hash = $.md5(password + lat + lon) + salt;
-	console.log("Hash generated:", hash);
-	
+	console.log("Salt:", salt);
+	console.log("Hash:", hash);
+
 	if (document.forms["markerEditForm"]["summary"].value == "") {
 		alert("Lyhyt kuvaus puuttuu");
 		return false;
@@ -115,27 +120,25 @@ function validateMarkerEditForm(userMarker) {
 		alert("Etäisyys puuttuu");
 		return false;
 	}
-	
+
 	if (document.forms["markerEditForm"]["name"].value == "") {
 		alert("Nimimerkki puuttuu");
-		return false;    
+		return false;
 	}
-	
+
 	if (document.forms["markerEditForm"]["password"].value == "") {
 		alert("Salasana puuttuu");
-		return false;    
+		return false;
 	}
-	
+
 	if (document.forms["markerEditForm"]["need"].checked) {
 		var role = "infected";
 	} else {
 		var role = "helpers";
 	}
-	
+
 	console.log("Setting dpValues for point in", lat, lon);
-	
-	var hash = password; // remove when md5 works
-		 
+
 	var dpValues = {
 		"role":			role,
 		"title": 		document.forms["markerEditForm"]["title"].value,
@@ -146,13 +149,13 @@ function validateMarkerEditForm(userMarker) {
 		"name": 		document.forms["markerEditForm"]["name"].value,
 		"passhash": 	hash
 	}
-	
-	console.log("Valid form. POSTing these:", dpValues);	
+
+	console.log("Valid form. POSTing these:", dpValues);
 	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
 
 	/*
 	*/
-		
+
 	$.post(postUrl, {
 		//"location": [ (Math.random()-.5)*360, (Math.random()-.5)*180 ],
 		"location": dpValues["location"],
@@ -166,7 +169,7 @@ function validateMarkerEditForm(userMarker) {
       });
 };
 // marker-edit-form validation and POST
-//// //// 
+//// ////
 
 
 function closeNewMarkerEditor() {
@@ -196,7 +199,7 @@ function noLocation(error) {
 // Add markers for infected users
 function addAsInfectedMarker(i) {
 	L.circle(i["location"], {
-		color: 'black',    
+		color: 'black',
 		weight: 1,
 		fillColor: 'rgb(255, 0, 0)',
 		fillOpacity: 0.3,
@@ -204,7 +207,7 @@ function addAsInfectedMarker(i) {
 	})
 	.addTo(mymap)
 	L.marker(i["location"]).addTo(mymap)
-		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Potilas<br><br>" + i["summary"] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>", 
+		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Potilas<br><br>" + i["summary"] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
 		// TODO: Kuinka saada muuttuja i:n jutut htmlään (ehkä jqueryllä päivittää otsikon ja kuvauksen yms kun popup avataan) nyt unille :)
 		{ keepInView: true }
 	);
@@ -215,12 +218,12 @@ function addAsInfectedMarker(i) {
 // Add markers for helpers
 function addAsHelperMarker(i) {
 	L.circle(i["location"], {
-		color: 'black',    
+		color: 'black',
 		weight: 1,
 		fillColor: 'rgb(0, 255, 0)',
 		fillOpacity: 0.3,
 		radius: i["radius"]
-	}).addTo(mymap);	
+	}).addTo(mymap);
 	L.marker(i["location"]).addTo(mymap)
 		.bindPopup("<div class='popup'><h3>" + i['name'] + " </h3>Auttaja<br><br>" + i['summary'] + "<p>" + i['description'] + "</p><br><button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button></div>",
 		{ keepInView: true }
@@ -232,7 +235,7 @@ function addAsHelperMarker(i) {
 // Messaging popup show
 function showMessagingPopup() {
 	$("#messaging-popup-container").show();
-	console.log("Show messaging");	
+	console.log("Show messaging");
 };
 
 
@@ -252,6 +255,10 @@ function updateLayers() {
 	};
 };
 
+function logMarkerLocation() {
+		console.log("Marker.getLatLng()  :", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
+};
+
 
 /*
 */
@@ -261,12 +268,13 @@ function updateLayers() {
 */
 
 
-// Setup map	
-var mymap = L.map('mapid', { zoomControl: false }).setView([62.38, 22.66], 7);
+// Setup map
+var mymap = L.map('mapid', { zoomControl: false,}).setView([62.38, 22.66], 10);
 	console.log("map create");
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	maxZoom: 18,
+	minZoom: 5,
+	maxZoom: 14,
 	id: 'mapbox/streets-v11',
 	tileSize: 512,
 	zoomOffset: -1,
@@ -284,14 +292,14 @@ var infected = [];
 //var infected_list_url = "https://kalasivut.net/koronapu/data/infected.json";
 var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
 
-var userMarker = undefined;
+
 
 $(document).ready(function(e){
 	$("body").scrollTop(0);
 	centerToMyPosition();
 	var latlng = mymap.getCenter();
-	var userMarkerLocation = latlng;
-
+	userMarker = L.marker(mymap.getCenter());
+	// window.setInterval(logMarkerLocation, 1000);				// DEBUG MARKER LOCATION
 });
 
 
@@ -319,4 +327,3 @@ var response2 = $.getJSON( helpers_list_url, function() {})
 	.fail(function() {
 		console.log("Error loading markerlist:", helpers_list_url);
 	});
-

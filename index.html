@@ -1,6 +1,6 @@
 <html>
-	<head>	
-		<meta charset="UTF-8">		
+	<head>
+		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content="Apua koronakaranteeniin" />
@@ -19,7 +19,7 @@
 			</div>
 		</div>
 		<div id="mapid"></div>
-		
+
 		<div id="messaging-popup-container">
 			<h3>Viestit</h3>
 			<button class="close-messaging-button" onclick="hideMessagingPopup()"> </button>
@@ -40,7 +40,7 @@
 		</div>
 
 
-		<!-- marker edit popup --> 
+		<!-- marker edit popup -->
 		<div id="marker-edit-frame">
 			<form id="marker-edit-form" name="markerEditForm" method="post">
 				<input type='radio' id='need' name='role' checked>Tarvitsen apua</input><br>
@@ -59,30 +59,35 @@
 				Salasana<br>
 				<input type='password' id='password' name='password' value=""></input><br>
 				<br>
+
+				<!-- Hidden inputs for coordinates -->
+				<input type="hidden" id="lat" name="lat"></input>
+				<input type="hidden" id="lon" name="lon"></input>
+
 				<br>
 				<button type="button" onclick='validateMarkerEditForm()' id="marker-edit-sendButton">Lähetä</button>
 				<button type="button" onclick='closeNewMarkerEditor()' type='button'>Peruuta</button>
 			</form>
 		</div>
-		<!-- marker edit popup --> 
-		
+		<!-- marker edit popup -->
 
-		<script src="https://code.jquery.com/jquery-3.4.1.min.js" 
+
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js"
 				integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
 				crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
 				crossorigin="anonymous"></script>
   		<script src="js/geoLocation.js"></script>
-  		
+
   		<!-- https://github.com/davidbau/seedrandom -->
   		<script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
-  		
-  		<!-- 
+
+  		<!--
 			 * jQuery MD5 Plugin 1.2.1
 			 * https://github.com/blueimp/jQuery-MD5
 		-->
 		<script src="js/md5.js"></script>
-				
-		<script src="js/koronapu.js"></script>		
+
+		<script src="js/koronapu.js"></script>
 	</body>
 </html>
