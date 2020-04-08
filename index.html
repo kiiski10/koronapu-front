@@ -44,7 +44,7 @@
 		<!-- marker edit popup -->
 		<div id="marker-edit-frame">
 			<form id="marker-edit-form" name="markerEditForm" method="post">
-				<input type='radio' id='need' name='role' checked>Tarvitsen apua</input><br>
+				<input type='radio' id='need' name='role' >Tarvitsen apua</input><br>
 				<input type='radio' id='offer' name='role' >Tarjoan apua</input><br>
 				<br>
 				Lyhyt kuvaus<br>
@@ -72,14 +72,14 @@
 		</div>
 
 		<!-- datapoint popup -->
-		<div id="datapoint-popup" class='popup'>
-			<div>name</div>
-			<div>role</div>
-			<div>summary</div>
-			<div>description</div>
+		<div id="datapoint-popup">
+			<div class="name">name</div>
+			<div class="role">role</div>
+			<div class="summary">summary</div>
+			<div class="description">description</div>
 			<div>
 				<button onclick='showMessagingPopup()' id="datapoint-messaging-open-button"></button>
-				<button onclick='showEditPage()' id="datapoint-start-edit-button"></button>
+				<button onclick='showDPPopup()' id="datapoint-start-edit-button"></button>
 			</div>
 		</div>
 

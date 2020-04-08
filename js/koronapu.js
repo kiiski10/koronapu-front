@@ -32,13 +32,6 @@ function centerToMyPosition() {
 	$.geolocation.get().done(centerToPosition).fail(noLocation);
 }
 
-// Keep location for new marker in memory
-function updateUserMarkerLocation(e) {
-	$('input[name="lat"]').val(e.target.getLatLng()["lat"]);
-	$('input[name="lon"]').val(e.target.getLatLng()["lon"]);
-	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
-};
-
 var newMarkerIcon = L.icon({
 	iconUrl: 			'img/new-location.png',
 	iconSize:     [128, 128],	// size of the icon
@@ -61,13 +54,16 @@ function userAddMarker() {
 		userMarker.remove();
 	};
 
-	userMarker =  L.marker([lat, lng],
+	userMarker = L.marker([lat, lng],
 		{
 			draggable: true,
-            autoPan: true,
+			autoPan: true,
 			icon: newMarkerIcon
 		})
 		.on('dragend', updateUserMarkerLocation)
+		.on('click', function(e) {
+			updateDPPopup(e);
+		})
 		.addTo(mymap)
 		.bindPopup($('#marker-edit-frame').html(),
 			{
@@ -149,8 +145,6 @@ function validateMarkerEditForm() {
 	});
 };
 
-// marker-edit-form validation and POST
-//// ////
 function closeNewMarkerEditor() {
 	console.log("close marker editor");
 	mymap.closePopup();
@@ -182,8 +176,10 @@ function addAsInfectedMarker(i) {
 		fillOpacity: 0.1,
 		radius: i["radius"]
 	})
-	.addTo(circle_group)
-	L.marker(i["location"]).addTo(pin_group)
+	.addTo(circle_group);
+	console.log("__", i["radius"]);
+	L.marker(i["location"])
+		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
@@ -199,7 +195,8 @@ function addAsHelperMarker(i) {
 		fillOpacity: 0.1,
 		radius: i["radius"]
 	}).addTo(circle_group);
-	L.marker(i["location"]).addTo(pin_group)
+	L.marker(i["location"])
+		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
@@ -216,6 +213,27 @@ function showMessagingPopup() {
 function hideMessagingPopup() {
 	$("#messaging-popup-container").hide();
 	console.log("Hide messaging");
+};
+
+//datapoint edit popup
+function showDPPopup() {
+	console.log("SHOW DP EDIT");
+	$("#marker-edit-frame").show();
+};
+
+// Keep location for new marker in memory
+function updateUserMarkerLocation(e) {
+	$('input[name="lat"]').val(e.target.getLatLng()["lat"]);
+	$('input[name="lon"]').val(e.target.getLatLng()["lon"]);
+	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
+};
+
+// Populate edit form fields
+function updateDPPopup(e) {
+	console.log("FORM FIELD UPDATE", e.target.getLatLng());
+	// change div contents to have editor
+	// populate editor values
+	$("#form-name").val("TESTI");
 };
 
 function updateLayers() {
@@ -270,6 +288,7 @@ var circle_group = new L.FeatureGroup();
 
 
 $(document).ready(function(e){
+	//$("#datapoint-popup").hide();
 	$("body").scrollTop(0);
 	centerToMyPosition();
 	userMarker = L.marker(mymap.getCenter());
