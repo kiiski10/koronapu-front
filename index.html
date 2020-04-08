@@ -71,13 +71,16 @@
 			</form>
 		</div>
 
-		<!-- user marker popup -->
+		<!-- datapoint popup -->
 		<div id="datapoint-popup" class='popup'>
-			<h3>name</h3>
-			role<br>
-			<br>
-			summary<p>description</p><br>
-			<button onclick='showMessagingPopup()'><img src='img/chat-bubble.png' alt='Lähetä viesti'></button>
+			<div>name</div>
+			<div>role</div>
+			<div>summary</div>
+			<div>description</div>
+			<div>
+				<button onclick='showMessagingPopup()' id="datapoint-messaging-open-button"></button>
+				<button onclick='showEditPage()' id="datapoint-start-edit-button"></button>
+			</div>
 		</div>
 
 

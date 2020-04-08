@@ -22,7 +22,7 @@ h4 {
 }
 
 .leaflet-popup-content {
-	font-size: 7mm;
+	font-size: 6mm;
 	width:78vh;
 	min-width: 200px;
 	max-width: 700px;
@@ -46,12 +46,6 @@ h4 {
 	width: 100%;
 	height: 350px;
 }
-
-
-iframe {
-	border: none;
-}
-
 
 #marker-edit-frame {
 	display: none;
@@ -77,6 +71,24 @@ iframe {
 	height: 600px;
 }
 
+#datapoint-messaging-open-button {
+	background-image: url("../img/chat-bubble.png");
+	background-size: 50px;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 60px;
+	height: 60px;
+}
+
+#datapoint-start-edit-button {
+	background-image: url("../img/pen.png");
+	background-size: 50px;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 60px;
+	height: 60px;
+}
+
 #messaging-popup-container button {
 	background-repeat: no-repeat;
 	background-position: center;
@@ -85,26 +97,29 @@ iframe {
 
 #messaging-popup-container .send-button {
 	background-image: url("../img/send.png");
-	width: 100px;
-	height: 100px;
+	background-size: 50px;
+	width: 90px;
+	height: 60px;
 	bottom: 15px;
 	right: 15px;
 }
 
 #messaging-popup-container .like-button {
 	background-image: url("../img/like.png");
-	width: 100px;
-	height: 100px;
+	background-size: 50px;
+	width: 90px;
+	height: 60px;
 	bottom: 15px;
 	left: 15px;
 }
 
 #messaging-popup-container .dislike-button {
 	background-image: url("../img/dislike.png");
-	width: 100px;
-	height: 100px;
+	background-size: 50px;
+	width: 90px;
+	height: 60px;
 	bottom: 15px;
-	left: 120px;
+	left: 104px;
 }
 
 #messaging-popup-container .close-messaging-button {
@@ -121,25 +136,25 @@ iframe {
 	width: 85%;
 	left: 50%;
 	max-width: 700px;
-	bottom: 120px;
+	bottom: 60px;
 	transform: translate(-50%, -50%);
 	margin: auto;
 	padding: 10px;
-	font-size: 8mm;
+	font-size: 24px;
 
 }
 
 #conversation-view {
-	font-size: 7mm;
+	font-size: 24px;
 	border-radius: 15px;
 	overflow: auto;
 	position: fixed;
 	width: 90%;
-	height: 60%;
+	height: 100%;
 	max-width: 800px;
 	max-height: 300px;
 	left: 50%;
-	bottom: 80px;
+	bottom: 60px;
 	transform: translate(-50%, -50%);
 	background-color: white;
 	box-shadow: inset 6px 2px 49px -15px rgba(0,0,0,0.75);

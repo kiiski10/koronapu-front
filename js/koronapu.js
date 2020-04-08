@@ -123,8 +123,6 @@ function validateMarkerEditForm() {
 		var role = "helpers";
 	}
 
-	console.log("Setting dpValues for point in", lat, lon);
-
 	var dpValues = {
 		"role":			role,
 		"title": 		document.forms["markerEditForm"]["title"].value,
@@ -136,7 +134,7 @@ function validateMarkerEditForm() {
 		"passhash": 	hash
 	};
 
-	console.log("Valid form. POSTing these:", dpValues);
+	console.log("VALID FORM. POSTing these:", dpValues);
 	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
 
 	$.post(postUrl, {
@@ -146,9 +144,9 @@ function validateMarkerEditForm() {
 		"description": dpValues["description"],
 		"radius": dpValues["radius"]
 	}, console.log).done(function() {
-        console.log("Form POSTed");
-        location.reload();
-      });
+		console.log("FORM POSTed");
+		location.reload();							// TODO: reload only markers, not whole page
+	});
 };
 
 // marker-edit-form validation and POST
@@ -181,7 +179,7 @@ function addAsInfectedMarker(i) {
 		color: 'black',
 		weight: 1,
 		fillColor: 'rgb(255, 0, 0)',
-		fillOpacity: 0.3,
+		fillOpacity: 0.1,
 		radius: i["radius"]
 	})
 	.addTo(circle_group)
@@ -189,8 +187,7 @@ function addAsInfectedMarker(i) {
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
-	console.log("Sick Added:", i["name"]);
-
+	// console.log("Sick Added:", i["name"]);
 };
 
 // 																				Add markers for helpers
@@ -199,14 +196,14 @@ function addAsHelperMarker(i) {
 		color: 'black',
 		weight: 1,
 		fillColor: 'rgb(0, 255, 0)',
-		fillOpacity: 0.3,
+		fillOpacity: 0.1,
 		radius: i["radius"]
 	}).addTo(circle_group);
 	L.marker(i["location"]).addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
-	console.log("Helper added:", i["name"]);
+	// console.log("Helper added:", i["name"]);
 };
 
 // Messaging popup show
@@ -224,15 +221,15 @@ function hideMessagingPopup() {
 function updateLayers() {
 	var currentZoom = mymap.getZoom();
 	if (currentZoom <= 10) {
-		console.log("zoomlevel", currentZoom);
+		// console.log("zoomlevel", currentZoom);
 		mymap.removeLayer(circle_group);
 	} else {
-		console.log("zoomlevel", currentZoom);
+		// console.log("zoomlevel", currentZoom);
 		mymap.addLayer(circle_group);
 	};
 };
 
-function logMarkerLocation() {
+function logMarkerLocation() { // For debug purposes. call with 'setInterval(1000, logMarkerLocation)'
 		console.log("Marker.getLatLng()  :", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
 };
 
@@ -246,8 +243,7 @@ function logMarkerLocation() {
 
 
 // Setup map
-var mymap = L.map('mapid', { zoomControl: false,}).setView([62.38, 22.66], 10);
-	console.log("map create");
+var mymap = L.map('mapid', { zoomControl: false,}).setView([62.38, 22.66], 5);
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 	minZoom: 5,
