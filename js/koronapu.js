@@ -61,8 +61,8 @@ function userAddMarker() {
 			icon: newMarkerIcon
 		})
 		.on('dragend', updateUserMarkerLocation)
-		.on('click', function(e) {
-			updateDPPopup(e);
+		.on("click", function() {
+			console.log("CLICK ON userMarker");
 		})
 		.addTo(mymap)
 		.bindPopup($('#marker-edit-frame').html(),
@@ -140,14 +140,16 @@ function validateMarkerEditForm() {
 		"description": dpValues["description"],
 		"radius": dpValues["radius"]
 	}, console.log).done(function() {
-		console.log("FORM POSTed");
+		console.log("FORM POSTED");
 		location.reload();							// TODO: reload only markers, not whole page
 	});
 };
 
 function closeNewMarkerEditor() {
-	console.log("close marker editor");
+	console.log("MARKER EDIT: CANCEL");
 	mymap.closePopup();
+	mymap.removeLayer(userMarker);
+	userMarker = undefined;
 }
 
 function noLocation(error) {
@@ -177,8 +179,11 @@ function addAsInfectedMarker(i) {
 		radius: i["radius"]
 	})
 	.addTo(circle_group);
-	console.log("__", i["radius"]);
 	L.marker(i["location"])
+		.on('click', function(e) {
+			popup = e.target.getPopup();
+			updateDPPopup(e.target.getPopup().getLatLng());
+		})
 		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
@@ -196,6 +201,10 @@ function addAsHelperMarker(i) {
 		radius: i["radius"]
 	}).addTo(circle_group);
 	L.marker(i["location"])
+			.on('click', function(e) {
+				popup = e.target.getPopup();
+				updateDPPopup(e.target.getPopup().getLatLng());
+			})
 		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
@@ -216,9 +225,9 @@ function hideMessagingPopup() {
 };
 
 //datapoint edit popup
-function showDPPopup() {
-	console.log("SHOW DP EDIT");
-	$("#marker-edit-frame").show();
+function showDpEditPopup() {
+	console.log("SHOW DP EDIT", $("#marker-edit-frame"));
+	// $("#marker-edit-frame").show();
 };
 
 // Keep location for new marker in memory
@@ -228,12 +237,20 @@ function updateUserMarkerLocation(e) {
 	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
 };
 
-// Populate edit form fields
-function updateDPPopup(e) {
-	console.log("FORM FIELD UPDATE", e.target.getLatLng());
-	// change div contents to have editor
-	// populate editor values
-	$("#form-name").val("TESTI");
+// populate edit form values
+function updateDPPopup(latlng) {
+	console.log("VIEW UPDATE FOR DP:", latlng);
+	$("#marker-edit-form #summary").val(latlng);
+	$("#marker-edit-form #name").val("NIMI MUUTETTU");
+	$("#marker-edit-form #password").val("DEFAULT PASS");
+
+	// Change title and other datapoint info
+	$("#datapoint-popup #summary").text(latlng);
+	$("#datapoint-popup #name").text("NIMI MUUTETTU");
+	$("#datapoint-popup #role").text("ROOLI MUUTETTU");
+
+	popup.setContent($('#datapoint-popup').html());
+
 };
 
 function updateLayers() {
@@ -288,7 +305,7 @@ var circle_group = new L.FeatureGroup();
 
 
 $(document).ready(function(e){
-	//$("#datapoint-popup").hide();
+	// $("#datapoint-popup").show();
 	$("body").scrollTop(0);
 	centerToMyPosition();
 	userMarker = L.marker(mymap.getCenter());
