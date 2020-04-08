@@ -147,9 +147,10 @@ function validateMarkerEditForm() {
 
 function closeNewMarkerEditor() {
 	console.log("MARKER EDIT: CANCEL");
+	$("#marker-edit-frame").hide();
 	mymap.closePopup();
 	mymap.removeLayer(userMarker);
-	userMarker = undefined;
+	userMarker = L.marker(mymap.getCenter());
 }
 
 function noLocation(error) {
@@ -182,7 +183,11 @@ function addAsInfectedMarker(i) {
 	L.marker(i["location"])
 		.on('click', function(e) {
 			popup = e.target.getPopup();
-			updateDPPopup(e.target.getPopup().getLatLng());
+			var lat = popup.getLatLng()["lat"].toPrecision(15);
+			var lon = popup.getLatLng()["lng"].toPrecision(15);
+			var id = lat + ";" + lon;
+			console.log("UPDATE ID:", id)
+			updateDPPopup(id);
 		})
 		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
@@ -203,7 +208,11 @@ function addAsHelperMarker(i) {
 	L.marker(i["location"])
 			.on('click', function(e) {
 				popup = e.target.getPopup();
-				updateDPPopup(e.target.getPopup().getLatLng());
+				var lat = popup.getLatLng()["lat"].toPrecision(15);
+				var lon = popup.getLatLng()["lng"].toPrecision(15);
+				var id = lat + ";" + lon;
+				console.log("UPDATE ID:", id)
+				updateDPPopup(id);
 			})
 		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
@@ -227,7 +236,7 @@ function hideMessagingPopup() {
 //datapoint edit popup
 function showDpEditPopup() {
 	console.log("SHOW DP EDIT", $("#marker-edit-frame"));
-	// $("#marker-edit-frame").show();
+	$("#marker-edit-frame").show();
 };
 
 // Keep location for new marker in memory
@@ -238,14 +247,23 @@ function updateUserMarkerLocation(e) {
 };
 
 // populate edit form values
-function updateDPPopup(latlng) {
-	console.log("VIEW UPDATE FOR DP:", latlng);
-	$("#marker-edit-form #summary").val(latlng);
+function updateDPPopup(id) {
+	console.log("VIEW UPDATE FOR DP:", id);
+	// GET datapoint in this location
+	$.ajax({
+	    url: '/api/datapoints.json/' + id,
+	    type: 'GET',
+	    success: function(result) {
+	        // Do something with the result
+	    }
+	});
+
+	$("#marker-edit-form #summary").val("ID:" + id);
 	$("#marker-edit-form #name").val("NIMI MUUTETTU");
 	$("#marker-edit-form #password").val("DEFAULT PASS");
 
 	// Change title and other datapoint info
-	$("#datapoint-popup #summary").text(latlng);
+	$("#datapoint-popup #summary").text("ID:" + id);
 	$("#datapoint-popup #name").text("NIMI MUUTETTU");
 	$("#datapoint-popup #role").text("ROOLI MUUTETTU");
 
