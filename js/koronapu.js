@@ -183,10 +183,10 @@ function addAsInfectedMarker(i) {
 	L.marker(i["location"])
 		.on('click', function(e) {
 			popup = e.target.getPopup();
-			var lat = popup.getLatLng()["lat"].toPrecision(15);
-			var lon = popup.getLatLng()["lng"].toPrecision(15);
+			var lat = popup.getLatLng()["lat"].toPrecision(16);
+			var lon = popup.getLatLng()["lng"].toPrecision(16);
 			var id = lat + ";" + lon;
-			console.log("UPDATE ID:", id)
+			console.log("infected ID:", id)
 			updateDPPopup(id);
 		})
 		.addTo(pin_group)
@@ -208,10 +208,9 @@ function addAsHelperMarker(i) {
 	L.marker(i["location"])
 			.on('click', function(e) {
 				popup = e.target.getPopup();
-				var lat = popup.getLatLng()["lat"].toPrecision(15);
-				var lon = popup.getLatLng()["lng"].toPrecision(15);
+				var lat = popup.getLatLng()["lat"].toPrecision(16);
+				var lon = popup.getLatLng()["lng"].toPrecision(16);
 				var id = lat + ";" + lon;
-				console.log("UPDATE ID:", id)
 				updateDPPopup(id);
 			})
 		.addTo(pin_group)
@@ -224,18 +223,18 @@ function addAsHelperMarker(i) {
 // Messaging popup show
 function showMessagingPopup() {
 	$("#messaging-popup-container").show();
-	console.log("Show messaging");
+	console.log("MESSAGING SHOW");
 };
 
 // Messaging popup hide
 function hideMessagingPopup() {
 	$("#messaging-popup-container").hide();
-	console.log("Hide messaging");
+	console.log("MESSAGING: HIDE");
 };
 
 //datapoint edit popup
 function showDpEditPopup() {
-	console.log("SHOW DP EDIT", $("#marker-edit-frame"));
+	console.log("MARKER EDIT: SHOW");
 	$("#marker-edit-frame").show();
 };
 
@@ -248,14 +247,13 @@ function updateUserMarkerLocation(e) {
 
 // populate edit form values
 function updateDPPopup(id) {
-	console.log("VIEW UPDATE FOR DP:", id);
+	console.log("DP VIEW UPDATE:", id);
 	// GET datapoint in this location
-	$.ajax({
-	    url: '/api/datapoints.json/' + id,
-	    type: 'GET',
-	    success: function(result) {
-	        // Do something with the result
-	    }
+	var jqxhr = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {
+		console.log("DP VIEW UPDATE: GET RESPONSE:", jqxhr.responseJSON);
+	})
+	.fail(function() {
+		console.log("DP VIEW UPDATE: GET FAILED FOR", id);
 	});
 
 	$("#marker-edit-form #summary").val("ID:" + id);
