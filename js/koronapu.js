@@ -24,7 +24,8 @@ function generateSalt() {
 // Map centering
 function centerToPosition(position) {
 	// Center the map to selected position
-	mymap.flyTo([position.coords.latitude, position.coords.longitude], 12);
+	//mymap.flyTo([position.coords.latitude, position.coords.longitude], 12);
+	mymap.panTo([position.coords.latitude, position.coords.longitude], 12);
 }
 
 // Center the map to users geolocation
@@ -43,6 +44,7 @@ function userAddMarker() {
 	$.geolocation.get().done(mymap.setTo).fail(noLocation);
 	lat = mymap.getCenter().lat;
 	lng = mymap.getCenter().lng;
+	updateDPPopup(lat + ";" + lng);
 	console.log("ADD MARKER");
 	console.log("  ", lat);
 	console.log("  ", lng);
@@ -63,6 +65,8 @@ function userAddMarker() {
 		.on('dragend', updateUserMarkerLocation)
 		.on("click", function() {
 			console.log("CLICK ON userMarker");
+			var id = lat + ";" + lng;
+			updateDPPopup(id);
 		})
 		.addTo(mymap)
 		.bindPopup($('#marker-edit-frame').html(),
@@ -78,10 +82,10 @@ function userAddMarker() {
 
 //// ////
 // marker-edit-form validation and POST
-function validateMarkerEditForm() {
-	lat = userMarker.getLatLng().lat;
-	lon = userMarker.getLatLng().lng;
-	console.log("VALIDATE MARKER INFO FOR POST:", lat, lon);
+function validateMarkerEditForm(e) {
+	lat = document.forms["markerEditForm"]["lat"].value;
+	lon = document.forms["markerEditForm"]["lon"].value;
+	console.log("VALIDATE FORM FOR POST:", lat, lon);
 
 	var	password = document.forms["markerEditForm"]["password"].value
 	var salt = generateSalt();
@@ -115,9 +119,11 @@ function validateMarkerEditForm() {
 
 	if (document.forms["markerEditForm"]["need"].checked) {
 		var role = "infected";
-	} else {
+	} else if (document.forms["markerEditForm"]["offer"].checked) {
 		var role = "helpers";
-	}
+	} else {
+		alert("Valitse rooli");
+	};
 
 	var dpValues = {
 		"role":			role,
@@ -183,10 +189,19 @@ function addAsInfectedMarker(i) {
 	L.marker(i["location"])
 		.on('click', function(e) {
 			popup = e.target.getPopup();
-			var lat = popup.getLatLng()["lat"].toPrecision(16);
-			var lon = popup.getLatLng()["lng"].toPrecision(16);
+			console.log("CLICK ON MARKER");
+
+			var lat = e.target.getLatLng()["lat"].toString()
+			var lata = lat.split(".")[0];
+			var latb = lat.split(".")[1].substring(0, 15);
+			lat = lata + "." + latb;
+
+			var lon = e.target.getLatLng()["lng"].toString()
+			var lona = lon.split(".")[0];
+			var lonb = lon.split(".")[1].substring(0, 15);
+			lon = lona + "." + lonb;
+
 			var id = lat + ";" + lon;
-			console.log("infected ID:", id)
 			updateDPPopup(id);
 		})
 		.addTo(pin_group)
@@ -206,13 +221,23 @@ function addAsHelperMarker(i) {
 		radius: i["radius"]
 	}).addTo(circle_group);
 	L.marker(i["location"])
-			.on('click', function(e) {
-				popup = e.target.getPopup();
-				var lat = popup.getLatLng()["lat"].toPrecision(16);
-				var lon = popup.getLatLng()["lng"].toPrecision(16);
-				var id = lat + ";" + lon;
-				updateDPPopup(id);
-			})
+		.on('click', function(e) {
+			popup = e.target.getPopup();;
+			console.log("CLICK ON MARKER");
+
+			var lat = e.target.getLatLng()["lat"].toString()
+			var lata = lat.split(".")[0];
+			var latb = lat.split(".")[1].substring(0, 15);
+			lat = lata + "." + latb;
+
+			var lon = e.target.getLatLng()["lng"].toString()
+			var lona = lon.split(".")[0];
+			var lonb = lon.split(".")[1].substring(0, 15);
+			lon = lona + "." + lonb;
+
+			var id = lat + ";" + lon;
+			updateDPPopup(id);
+		})
 		.addTo(pin_group)
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
@@ -245,27 +270,51 @@ function updateUserMarkerLocation(e) {
 	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
 };
 
-// populate edit form values
+// Populate edit form values
 function updateDPPopup(id) {
 	console.log("DP VIEW UPDATE:", id);
-	// GET datapoint in this location
-	var jqxhr = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {
-		console.log("DP VIEW UPDATE: GET RESPONSE:", jqxhr.responseJSON);
+	var dbResponse = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {
+		console.log("DP VIEW UPDATE: GET RESPONSE:", dbResponse.responseJSON);
+		var dp = dbResponse.responseJSON[id];
+		if (dp == null) {
+			var la = id.split(";")[0];
+			var lo = id.split(";")[1];
+			console.log("UUSI DATAPOINTTIS", la, lo);
+			$("#marker-edit-form #lat").val(la);
+			$("#marker-edit-form #lon").val(lo);
+		popup.setContent($('#datapoint-popup').html());
+			return;
+		}
+		console.log("UPDATING THE VIEW WITH:", dp)
+		// Form fields
+		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
+		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
+		$("#marker-edit-form #description").val(dp["description"]);
+		$("#marker-edit-form #radius").val(dp["radius"]);
+		$("#marker-edit-form #name").val(dp["name"]);
+		// Datapoint view
+		$("#datapoint-popup #summary").text(dp["summary"]);
+		$("#datapoint-popup #name").text(dp["name"]);
+		$("#datapoint-popup #role").text(dp["role"]);
+		$("#datapoint-popup #description").text(dp["description"]);
+		popup.setContent($('#datapoint-popup').html());
 	})
 	.fail(function() {
 		console.log("DP VIEW UPDATE: GET FAILED FOR", id);
+		// Change title and other datapoint info
+		$("#marker-edit-form #lat").val("");
+		$("#marker-edit-form #lon").val("");
+		$("#marker-edit-form #description").val("");
+		$("#marker-edit-form #radius").val("");
+		$("#marker-edit-form #name").val("");
+
+		$("#datapoint-popup #summary").text("Failed to get this");
+		$("#datapoint-popup #name").text("ERROR");
+		$("#datapoint-popup #role").text("Failed to get this");
+		$("#datapoint-popup #description").text("Failed to get this");
+		popup.setContent($('#datapoint-popup').html());
 	});
 
-	$("#marker-edit-form #summary").val("ID:" + id);
-	$("#marker-edit-form #name").val("NIMI MUUTETTU");
-	$("#marker-edit-form #password").val("DEFAULT PASS");
-
-	// Change title and other datapoint info
-	$("#datapoint-popup #summary").text("ID:" + id);
-	$("#datapoint-popup #name").text("NIMI MUUTETTU");
-	$("#datapoint-popup #role").text("ROOLI MUUTETTU");
-
-	popup.setContent($('#datapoint-popup').html());
 
 };
 
