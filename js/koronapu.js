@@ -289,6 +289,7 @@ function updateDPPopup(id) {
 		// Form fields
 		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
 		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
+		$("#marker-edit-form #summary").val(dp["summary"]);
 		$("#marker-edit-form #description").val(dp["description"]);
 		$("#marker-edit-form #radius").val(dp["radius"]);
 		$("#marker-edit-form #name").val(dp["name"]);
