@@ -71,16 +71,18 @@ function userAddMarker() {
 			console.log("CLICK ON userMarker");
 			var id = lat + ";" + lng;
 			updateDPPopup(id);
+			//$('#marker-edit-frame').show();
+			showDpEditPopup();
 		})
 		.addTo(mymap)
-		.bindPopup($('#marker-edit-frame').html(),
+		/*.bindPopup($('#marker-edit-frame').html(),
 			{
 				maxWidth: 290, // Too big value hides the Send button on small screens
 				maxHeight: 400,
 				closeOnClick: false,
 				keepInView: true,
 			}
-		);
+		);*/
 		userMarker.setLatLng([lat, lng]);
 }
 
@@ -177,7 +179,7 @@ function closeNewMarkerEditor() {
 	$("#marker-edit-frame").hide();
 	mymap.closePopup();
 	mymap.removeLayer(userMarker);
-	userMarker = L.marker(mymap.getCenter());
+	//userMarker = L.marker(mymap.getCenter());
 };
 
 function noLocation(error) {
@@ -307,6 +309,11 @@ function updateDPPopup(id) {
 			$("#marker-edit-form #new").val("true");
 			$("#marker-edit-form .role-select").prop("checked", false);
 			$("#marker-edit-form .role-select").show();
+
+			$("#marker-edit-form #name").val("");
+			$("#marker-edit-form #summary").val("");
+			$("#marker-edit-form #description").val("");
+			$("#marker-edit-form #radius").val(1000);
 
 			return;
 		}
