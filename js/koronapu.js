@@ -1,3 +1,7 @@
+// Check if string is empty
+function isEmpty(str) {
+	return (!str || 0 === str.length);
+}
 
 // Extract variables from URL
 // Example: var lat = getUrlVars()["lat"];
@@ -82,7 +86,7 @@ function userAddMarker() {
 
 //// ////
 // marker-edit-form validation and POST
-function validateMarkerEditForm(e) {
+function validateMarkerEditForm() {
 	lat = document.forms["markerEditForm"]["lat"].value;
 	lon = document.forms["markerEditForm"]["lon"].value;
 	console.log("VALIDATE FORM FOR POST:", lat, lon);
@@ -123,10 +127,12 @@ function validateMarkerEditForm(e) {
 		var role = "helpers";
 	} else {
 		alert("Valitse rooli");
+		return false;
 	};
 
 	var dpValues = {
 		"role":			role,
+		"new": 		document.forms["markerEditForm"]["new"].value,
 		"title": 		document.forms["markerEditForm"]["title"].value,
 		"summary": 		document.forms["markerEditForm"]["summary"].value,
 		"description": 	document.forms["markerEditForm"]["description"].value,
@@ -137,10 +143,19 @@ function validateMarkerEditForm(e) {
 	};
 
 	console.log("VALID FORM. POSTing these:", dpValues);
-	var postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
+
+	console.log("    IS NEW MARKER:", dpValues["new"]);
+	if (dpValues["new"] == "true") {
+		postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";	// This url creates new
+		console.log("EDITINGGGGGttzzZZ tRue");
+	} else {
+		var postUrl = "http://stash.pekka.pl:8080/api/datapoints.json?id=" + lat + ";" + lon;	  // This url edits
+	};
+
 
 	$.post(postUrl, {
 		"location": dpValues["location"],
+		"role": dpValues["role"],
 		"name": dpValues["name"],
 		"summary": dpValues["summary"],
 		"description": dpValues["description"],
@@ -270,23 +285,25 @@ function updateUserMarkerLocation(e) {
 	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
 };
 
-// Populate edit form values
+// Populate edit form values and popup view
 function updateDPPopup(id) {
 	console.log("DP VIEW UPDATE:", id);
-	var dbResponse = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {
+	var dbResponse = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {})
+		.done(function() {
 		console.log("DP VIEW UPDATE: GET RESPONSE:", dbResponse.responseJSON);
 		var dp = dbResponse.responseJSON[id];
 		if (dp == null) {
 			var la = id.split(";")[0];
 			var lo = id.split(";")[1];
-			console.log("UUSI DATAPOINTTIS", la, lo);
+			console.log("NEW DATAPOINT:", la, lo);
 			$("#marker-edit-form #lat").val(la);
 			$("#marker-edit-form #lon").val(lo);
-		popup.setContent($('#datapoint-popup').html());
+		$("#marker-edit-form #new").val("true");
 			return;
 		}
 		console.log("UPDATING THE VIEW WITH:", dp)
 		// Form fields
+		$("#marker-edit-form #new").val("false");
 		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
 		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
 		$("#marker-edit-form #summary").val(dp["summary"]);
@@ -303,6 +320,7 @@ function updateDPPopup(id) {
 	.fail(function() {
 		console.log("DP VIEW UPDATE: GET FAILED FOR", id);
 		// Change title and other datapoint info
+		$("#marker-edit-form #new").val("true");
 		$("#marker-edit-form #lat").val("");
 		$("#marker-edit-form #lon").val("");
 		$("#marker-edit-form #description").val("");
@@ -315,8 +333,6 @@ function updateDPPopup(id) {
 		$("#datapoint-popup #description").text("Failed to get this");
 		popup.setContent($('#datapoint-popup').html());
 	});
-
-
 };
 
 function updateLayers() {
@@ -348,7 +364,7 @@ var mymap = L.map('mapid', { zoomControl: false,}).setView([62.38, 22.66], 5);
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 	minZoom: 5,
-	maxZoom: 14,
+	maxZoom: 17,
 	id: 'mapbox/streets-v11',
 	tileSize: 512,
 	zoomOffset: -1,

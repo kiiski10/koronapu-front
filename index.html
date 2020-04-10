@@ -53,7 +53,7 @@
 				<textarea rows="5" autocomplete="off" id='description' name='description'></textarea><br>
 				<br>
 				Etäisyys (metriä)<br>
-				<input min="50" max="10000" value="100" step="50" type='number' autocomplete="off" id='radius' name='radius'></input><br>
+				<input min="100" max="10000" value="1000" step="100" type='number' autocomplete="off" id='radius' name='radius'></input><br>
 				<br>
 				Nimimerkki<br>
 				<input type='text' id='name' name='name' value=""></input><br>
@@ -64,6 +64,7 @@
 				<!-- Hidden inputs for coordinates -->
 				<input type="hidden" id="lat" name="lat"></input>
 				<input type="hidden" id="lon" name="lon"></input>
+				<input type="hidden" id="new" name="new"></input>
 
 				<br>
 				<button type="button" onclick='validateMarkerEditForm()' id="marker-edit-sendButton">Lähetä</button>
@@ -71,7 +72,6 @@
 			</form>
 		</div>
 
-		<!-- datapoint popup (class="datapoint-popup" added by leaflet ) -->
 		<div id="datapoint-popup">
 			<div id="name">name</div>
 			<div id="role">role</div>
