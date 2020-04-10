@@ -304,22 +304,34 @@ function updateDPPopup(id) {
 			console.log("NEW DATAPOINT:", la, lo);
 			$("#marker-edit-form #lat").val(la);
 			$("#marker-edit-form #lon").val(lo);
-		$("#marker-edit-form #new").val("true");
+			$("#marker-edit-form #new").val("true");
+			$("#marker-edit-form .role-select").prop("checked", false);
+			$("#marker-edit-form .role-select").show();
+
 			return;
 		}
 		console.log("UPDATING THE VIEW WITH:", dp)
 		// Form fields
 		$("#marker-edit-form #new").val("false");
+		if (dp["role"] == "infected") {
+			$("#marker-edit-form #need").prop("checked", true);
+			$("#marker-edit-form #offer").prop("checked", false);
+		} else if (dp["role"] == "helpers") {
+			$("#marker-edit-form #need").prop("checked", false);
+			$("#marker-edit-form #offer").prop("checked", true);
+		};
+		$("#marker-edit-form .role-select").hide();
+
 		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
 		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
+		$("#marker-edit-form #name").val(dp["name"]);
 		$("#marker-edit-form #summary").val(dp["summary"]);
 		$("#marker-edit-form #description").val(dp["description"]);
 		$("#marker-edit-form #radius").val(dp["radius"]);
-		$("#marker-edit-form #name").val(dp["name"]);
 		// Datapoint view
-		$("#datapoint-popup #summary").text(dp["summary"]);
 		$("#datapoint-popup #name").text(dp["name"]);
 		$("#datapoint-popup #role").text(dp["role"]);
+		$("#datapoint-popup #summary").text(dp["summary"]);
 		$("#datapoint-popup #description").text(dp["description"]);
 		popup.setContent($('#datapoint-popup').html());
 	})
