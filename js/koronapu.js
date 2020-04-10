@@ -89,35 +89,36 @@ function userAddMarker() {
 function validateMarkerEditForm() {
 	lat = document.forms["markerEditForm"]["lat"].value;
 	lon = document.forms["markerEditForm"]["lon"].value;
-	console.log("VALIDATE FORM FOR POST:", lat, lon);
-
+	var isNew = document.forms["markerEditForm"]["new"].value;
 	var	password = document.forms["markerEditForm"]["password"].value
 	var salt = generateSalt();
 	var hash = $.md5(password + lat + lon) + salt;
 
-	console.log("Salt:", salt);
-	console.log("Hash:", hash);
-
 	if (document.forms["markerEditForm"]["summary"].value == "") {
-		alert("Lyhyt kuvaus puuttuu");
+		console.log("FORM ERROR: EMPTY SUMMARY");
+		alert("FORM ERROR: Empty 'summary' field");
 		return false;
 	}
 	if (document.forms["markerEditForm"]["description"].value == "") {
-		alert("Tarkka kuvaus puuttuu");
+		console.log("FORM ERROR: EMPTY DESCRIPTION");
+		alert("FORM ERROR: Empty 'description' field");
 		return false;
 	}
 	if (document.forms["markerEditForm"]["radius"].value == "") {
-		alert("Etäisyys puuttuu");
+		console.log("FORM ERROR: EMPTY RADIUS");
+		alert("FORM ERROR: Empty 'radius' field");
 		return false;
 	}
 
 	if (document.forms["markerEditForm"]["name"].value == "") {
-		alert("Nimimerkki puuttuu");
+		console.log("FORM ERROR: EMPTY NAME");
+		alert("FORM ERROR: Empty 'name' field");
 		return false;
 	}
 
 	if (document.forms["markerEditForm"]["password"].value == "") {
-		alert("Salasana puuttuu");
+		console.log("FORM ERROR: EMPTY PASSWORD");
+		alert("FORM ERROR: Empty 'password' field");
 		return false;
 	}
 
@@ -130,9 +131,23 @@ function validateMarkerEditForm() {
 		return false;
 	};
 
+	if (isNew == "true") {
+		// This url creates new datapoints
+		postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
+	} else {
+		// This url edits
+		var postUrl = "http://stash.pekka.pl:8080/api/datapoints.json?id=" + lat + ";" + lon;
+	};
+
+	console.log("VALID FORM FOR:", lat, lon);
+	console.log("    IS NEW:", isNew);
+	console.log("    SEND TO:", postUrl);
+	console.log("    SALT:", salt);
+	console.log("    HASH:", hash);
+
 	var dpValues = {
 		"role":			role,
-		"new": 		document.forms["markerEditForm"]["new"].value,
+		"new": 		isNew,
 		"title": 		document.forms["markerEditForm"]["title"].value,
 		"summary": 		document.forms["markerEditForm"]["summary"].value,
 		"description": 	document.forms["markerEditForm"]["description"].value,
@@ -142,16 +157,7 @@ function validateMarkerEditForm() {
 		"passhash": 	hash
 	};
 
-	console.log("VALID FORM. POSTing these:", dpValues);
-
-	console.log("    IS NEW MARKER:", dpValues["new"]);
-	if (dpValues["new"] == "true") {
-		postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";	// This url creates new
-		console.log("EDITINGGGGGttzzZZ tRue");
-	} else {
-		var postUrl = "http://stash.pekka.pl:8080/api/datapoints.json?id=" + lat + ";" + lon;	  // This url edits
-	};
-
+		console.log("POSTING:", dpValues);
 
 	$.post(postUrl, {
 		"location": dpValues["location"],
@@ -161,7 +167,7 @@ function validateMarkerEditForm() {
 		"description": dpValues["description"],
 		"radius": dpValues["radius"]
 	}, console.log).done(function() {
-		console.log("FORM POSTED");
+		console.log("    POST DONE");
 		location.reload();							// TODO: reload only markers, not whole page
 	});
 };
@@ -172,24 +178,24 @@ function closeNewMarkerEditor() {
 	mymap.closePopup();
 	mymap.removeLayer(userMarker);
 	userMarker = L.marker(mymap.getCenter());
-}
+};
 
 function noLocation(error) {
-  switch(error.code) {
-    case error.PERMISSION_DENIED:
-      console.log("User denied the request for Geolocation.");
-      break;
-    case error.POSITION_UNAVAILABLE:
-      console.log("Location information is unavailable.");
-      break;
-    case error.TIMEOUT:
-      console.log("The request to get user location timed out.");
-      break;
-    case error.UNKNOWN_ERROR:
-      console.log("An unknown error occurred.");
-      break;
-  }
-}
+	switch(error.code) {
+		case error.PERMISSION_DENIED:
+			console.log("NO GEOLOCATION: PERMISSION_DENIED");
+			break;
+		case error.POSITION_UNAVAILABLE:
+			console.log("NO GEOLOCATION: POSITION_UNAVAILABLE");
+			break;
+		case error.TIMEOUT:
+			console.log("NO GEOLOCATION: TIMEOUT");
+			break;
+		case error.UNKNOWN_ERROR:
+			console.log("NO GEOLOCATION: UNKNOWN_ERROR");
+			break;
+	};
+};
 
 // 																				Add markers for infected users
 function addAsInfectedMarker(i) {
@@ -402,10 +408,10 @@ var response = $.getJSON( infected_list_url, function() {})
 		};
 		mymap.addLayer(pin_group);
 		mymap.addLayer(circle_group);
-		console.log("Contents of 'infected.json' added as markers");
+		console.log("MARKERS ADDED FROM:", infected_list_url);
 	})
 	.fail(function() {
-		console.log("Error loading markerlist:", infected_list_url);
+		console.log("ERROR: CANT GET MARKERS FROM:", infected_list_url);
 	})
 
 
@@ -417,8 +423,8 @@ var response2 = $.getJSON( helpers_list_url, function() {})
 		};
 		mymap.addLayer(pin_group);
 		mymap.addLayer(circle_group);
-		console.log("Contents of 'helpers.json' added as markers");
+		console.log("MARKERS ADDED FROM:", helpers_list_url);
 	})
 	.fail(function() {
-		console.log("Error loading markerlist:", helpers_list_url);
+		console.log("ERROR: CANT GET MARKERS FROM:", helpers_list_url);
 	});
