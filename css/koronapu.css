@@ -55,9 +55,17 @@ h4 {
 	color: black;
 	padding: 10px;
 	width: 80%;
+	max-width: 595px;
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
+}
+
+#marker-edit-frame input{
+	width: 100%;
+}
+#marker-edit-frame textarea{
+	width: 100%;
 }
 
 #datapoint-popup {
@@ -106,20 +114,25 @@ h4 {
 	z-index: 1;
 	color: black;
 	background-color: white;
+	border-radius: 5px;
 	box-shadow: 10px 10px 54px -4px rgba(0,0,0,0.75);
-	border-radius: 15px;
 	left: 50%;
 	top: 330px;
 	transform: translate(-50%, -50%);
-	height: 80%;
+	height: 590px;
 	width: 85%;
-	height: 600px;
 	max-width: 800px;
+}
+#messaging-popup-container h3 {
+	padding-left: 20px;
+	padding-top: 10px;
 }
 
 #messaging-popup-container button {
 	position: absolute;
+	bottom: 15px;
 	height: 60px;
+	width: 90px;
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 50px;
@@ -127,23 +140,18 @@ h4 {
 
 #messaging-popup-container .send-button {
 	background-image: url("../img/send.png");
-	width: 90px;
-	bottom: 15px;
-	right: 15px;
+	right: 5%;
 }
 
 #messaging-popup-container .like-button {
 	background-image: url("../img/like.png");
-	width: 90px;
-	bottom: 15px;
-	left: 15px;
+	left: 5%;
 }
 
 #messaging-popup-container .dislike-button {
 	background-image: url("../img/dislike.png");
-	width: 90px;
-	bottom: 15px;
-	left: 104px;
+	left: 130px;
+
 }
 
 #messaging-popup-container .close-messaging-button {
@@ -154,34 +162,37 @@ h4 {
 	right: 10px;
 }
 
-#message-textarea {
-	position: fixed;
-	box-shadow: inset 6px 2px 49px -15px rgba(0,0,0,0.75);
-	width: 85%;
-	left: 50%;
-	max-width: 800px;
-	bottom: 60px;
-	transform: translate(-50%, -50%);
-	margin: auto;
-	padding: 10px;
-	font-size: 24px;
-
-}
-
 #conversation-view {
-	font-size: 24px;
-	border-radius: 15px;
-	overflow: auto;
-	position: fixed;
+	position: relative;
+	background-color: white;
 	width: 90%;
 	height: 100%;
 	max-width: 800px;
 	max-height: 300px;
 	left: 50%;
-	bottom: 60px;
+	top: 200px;
 	transform: translate(-50%, -50%);
-	background-color: white;
-	box-shadow: inset 6px 2px 49px -15px rgba(0,0,0,0.75);
+	font-size: 17px;
+	border-style: solid;
+	border-color: black;
+	border-width: 1px;
+	overflow: auto;
+}
+
+#message-textarea {
+	position: fixed;
+	border-style: solid;
+	border-color: black;
+	border-width: 1px;
+	width: 85%;
+	left: 50%;
+	width: 90%;
+	max-width: 800px;
+	bottom: 110px;
+	transform: translate(-50%, -50%);
+	margin: auto;
+	padding: 10px;
+	font-size: 17px;
 
 }
 

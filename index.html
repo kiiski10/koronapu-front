@@ -24,16 +24,7 @@
 		<div id="messaging-popup-container">
 			<h3>Viestit</h3>
 			<button class="close-messaging-button" onclick="hideMessagingPopup()"> </button>
-			<div id="conversation-view">
-				<ul>
-					<li>Sinä: Moi</li>
-					<li>Hän: Hei!</li>
-					<li>Sinä: Laitatko puhelinnumeros niin soitan</li>
-					<li>Hän: Joo, 03 123 123</li>
-					<li>Sinä: Kiitos, soitan kohta</li>
-					<li>Hän: Selvä homma</li>
-				</ul>
-			</div>
+			<textarea id="conversation-view" placeholder="Ei viestejä käyttäjän '**TODO**' kanssa." readonly></textarea>
 			<input id="message-textarea" placeholder="Kirjoita viesti tähän" type="textarea"></input><br>
 			<button class="send-button" onclick="msgSend()"></button><br>
 			<button class="like-button" onclick="like()"></button><br>
@@ -44,13 +35,13 @@
 		<!-- marker edit popup -->
 		<div id="marker-edit-frame">
 			<form id="marker-edit-form" name="markerEditForm" method="post">
-				<div class="role-select">Tarvitsen apua </div>
+				<div class="role-select">Tarvitsen apua</div>
 				<input type='radio' class="role-select" id='need' name='role'<br>
-				<div class="role-select">Tarjoan apua </div>
+				<div class="role-select">Tarjoan apua</div>
 				<input type='radio' class="role-select" id='offer' name='role'<br>
 				<br>
 				<textarea rows="3" autocomplete="off" id='summary' name='summary' placeholder="Lyhyt kuvaus"></textarea><br>
-				<textarea rows="5" autocomplete="off" id='description' name='description' placeholder="Selitys"></textarea><br>
+				<textarea rows="5" autocomplete="off" id='description' name='description' placeholder="Tarkempi selitys"></textarea><br>
 				<br>
 				Etäisyys (metriä)<br>
 				<input min="100" max="10000" value="1000" step="100" type='number' autocomplete="off" id='radius' name='radius'></input><br>
