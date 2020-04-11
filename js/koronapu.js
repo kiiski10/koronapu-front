@@ -177,8 +177,8 @@ function validateMarkerEditForm() {
 function closeNewMarkerEditor() {
 	console.log("MARKER EDIT: CANCEL");
 	$("#marker-edit-frame").hide();
-	mymap.closePopup();
-	mymap.removeLayer(userMarker);
+	//mymap.closePopup();
+	//mymap.removeLayer(userMarker);
 	//userMarker = L.marker(mymap.getCenter());
 };
 
