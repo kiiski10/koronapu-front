@@ -46,8 +46,8 @@ var newMarkerIcon = L.icon({
 
 function userAddMarker() {
 	$.geolocation.get().done(mymap.setTo).fail(noLocation);
-	lat = mymap.getCenter().lat;
-	lng = mymap.getCenter().lng;
+	lat = mymap.getCenter().lat; // DONT get 'lat', 'lon' from 'mymap'
+	lng = mymap.getCenter().lng; // DONT get 'lat', 'lon' from 'mymap'
 	updateDPPopup(lat + ";" + lng);
 	console.log("ADD MARKER");
 	console.log("  ", lat);
@@ -288,9 +288,12 @@ function showDpEditPopup() {
 
 // Keep location for new marker in memory
 function updateUserMarkerLocation(e) {
-	$('input[name="lat"]').val(e.target.getLatLng()["lat"]);
-	$('input[name="lon"]').val(e.target.getLatLng()["lon"]);
-	console.log("TARGET FOR MARKER:", e.target.getLatLng()["lat"], e.target.getLatLng()["lng"]);
+	var lat = e.target.getLatLng()["lat"];
+	var lon = e.target.getLatLng()["lng"];
+	$('input[name="lat"]').val(lat);
+	$('input[name="lon"]').val(lon);
+	userMarker.setLatLng(e.target.getLatLng());
+	console.log("TARGET FOR MARKER:", lat, lon);
 };
 
 // Populate edit form values and popup view
@@ -371,8 +374,8 @@ function updateLayers() {
 	};
 };
 
-function logMarkerLocation() { // For debug purposes. call with 'setInterval(1000, logMarkerLocation)'
-		console.log("Marker.getLatLng()  :", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
+function logMarkerLocation() { // For debug purposes. call with 'setInterval(function(){ logMarkerLocation(); }, 1000);'
+	console.log("DEBUG: MARKER LOCATION:", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
 };
 
 
@@ -416,6 +419,9 @@ $(document).ready(function(e){
 	$("body").scrollTop(0);
 	centerToMyPosition();
 	userMarker = L.marker(mymap.getCenter());
+
+	console.log("SET INTERVAL FOR DEBUG");
+	setInterval(function(){ logMarkerLocation(); }, 1000); // DEBUG
 });
 
 
