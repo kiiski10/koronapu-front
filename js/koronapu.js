@@ -339,12 +339,15 @@ var zoomLevel = 10;
 var lat = 61;
 var lon = 23.5;
 
-var minZoom = 3;
-var maxZoom = 14;
+var minZoom = 4;
+var maxZoom = 16;
 
-var mymap = L.map('mapid', { zoomControl: false,}).setView([lat, lon], zoomLevel)
+var mymap = L.map('mapid', {
+		zoomControl: false,
+		maxBounds: [[90, 180],[-90, -180]]
+	})
+	.setView([lat, lon], zoomLevel)
 	.on("moveend", function() {
-		console.log("moveend");
 		latlon = mymap.getCenter();
 		lat = latlon.lat;
 		lon = latlon.lng;
@@ -356,7 +359,8 @@ var mymap = L.map('mapid', { zoomControl: false,}).setView([lat, lon], zoomLevel
 			zoomLevel =  maxZoom;
 			mymap.setView([lat, lon], zoomLevel);
 		};
-		history.pushState("testijuttu", "SOAPP", "/koronapu/?lat=" + lat.toString().substring(0,8) + "&lon=" + lon.toString().substring(0,8) + "&z=" + zoomLevel);
+		var url = "/koronapu/?lat=" + lat.toString().substring(0,7) + "&lon=" + lon.toString().substring(0,7) + "&z=" + zoomLevel;
+		history.replaceState(url, "", url);
 	});
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
