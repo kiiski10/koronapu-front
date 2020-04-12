@@ -30,12 +30,19 @@ function generateSalt() {
 	return salt;
 }
 
-// Map centering
+// Center the map to selected position
 function centerToPosition(position) {
-	// Center the map to selected position
-	mymap.flyTo([position.coords.latitude, position.coords.longitude], 11);
-	//mymap.panTo([position.coords.latitude, position.coords.longitude]); // No zooming
-}
+	if (position.coords != null) {
+		//mymap.panTo([position.coords.latitude, position.coords.longitude]); // No zooming
+		mymap.flyTo([position.coords["latitude"], position.coords["longitude"]], 10);
+	} else {
+		console.log("POSITION ZOOM:", position)
+		if ( position[2] != null) {
+			zoomLevel = position[2];
+		};
+		mymap.setView([position[0], position[1]], zoomLevel);
+	};
+};
 
 // Center the map to users geolocation
 function centerToMyPosition() {
@@ -43,10 +50,10 @@ function centerToMyPosition() {
 }
 
 var newMarkerIcon = L.icon({
-	iconUrl:			'img/new-location.png',
-	iconSize:			[128, 128],	// size of the icon
-	iconAnchor:		[65, 124],	// point of the icon which will correspond to marker's location
-	popupAnchor:	[0, 0]			// point from which the popup should open relative to the iconAnchor
+	iconUrl:     'img/new-location.png',
+	iconSize:    [128, 128],	// size of the icon
+	iconAnchor:  [65, 124],	// point of the icon which will correspond to marker's location
+	popupAnchor: [0, 0]			// point from which the popup should open relative to the iconAnchor
 });
 
 function userAddMarker() {
@@ -78,7 +85,7 @@ function userAddMarker() {
 			updateDPPopup(id);
 			showDpEditPopup();
 		})
-		.addTo(mymap)
+		.addTo(mymap);
 		userMarker.setLatLng([lat, lng]);
 }
 
@@ -144,25 +151,25 @@ function validateMarkerEditForm() {
 	console.log("	HASH:", hash);
 
 	var dpValues = {
-		"role":					role,
-		"new": 					isNew,
-		"title": 				document.forms["markerEditForm"]["title"].value,
-		"summary": 			document.forms["markerEditForm"]["summary"].value,
-		"description": 	document.forms["markerEditForm"]["description"].value,
-		"location":			[lat, lon],
-		"radius": 			parseInt(document.forms["markerEditForm"]["radius"].value),
-		"name": 				document.forms["markerEditForm"]["name"].value,
-		"passhash": 		hash
+		"role":        role,
+		"new":         isNew,
+		"title":       document.forms["markerEditForm"]["title"].value,
+		"summary":     document.forms["markerEditForm"]["summary"].value,
+		"description": document.forms["markerEditForm"]["description"].value,
+		"location":    [lat, lon],
+		"radius":      parseInt(document.forms["markerEditForm"]["radius"].value),
+		"name":        document.forms["markerEditForm"]["name"].value,
+		"passhash":    hash
 	};
 
 	console.log("POSTING:", dpValues);
 	$.post(postUrl, {
-		"location": 		dpValues["location"],
-		"role":					dpValues["role"],
-		"name":					dpValues["name"],
-		"summary":			dpValues["summary"],
-		"description":	dpValues["description"],
-		"radius": 			dpValues["radius"]
+		"location":    dpValues["location"],
+		"role":        dpValues["role"],
+		"name":        dpValues["name"],
+		"summary":     dpValues["summary"],
+		"description": dpValues["description"],
+		"radius":      dpValues["radius"]
 	}).done(function() {
 		console.log("POST DONE");
 		location.reload();							// TODO: reload only markers, not whole page
@@ -201,11 +208,11 @@ function addMarker(i) {
 	};
 
 	L.circle(i["location"], {
-		color:				'black',
-		weight:				1,
-		fillColor:		cColor,
-		fillOpacity:	0.1,
-		radius:				i["radius"]
+		color:      'black',
+		weight:      1,
+		fillColor:   cColor,
+		fillOpacity: 0.1,
+		radius:      i["radius"]
 	})
 	.addTo(circle_group);
 	L.marker(i["location"])
@@ -213,12 +220,12 @@ function addMarker(i) {
 			popup = e.target.getPopup();
 			console.log("CLICK ON: '" + i["role"] + "' MARKER");
 
-			var lat = e.target.getLatLng()["lat"].toString()
+			lat = e.target.getLatLng()["lat"].toString();
 			var lata = lat.split(".")[0];
 			var latb = lat.split(".")[1].substring(0, 15);	//	Limit the decimal amount
 			lat = lata + "." + latb;
 
-			var lon = e.target.getLatLng()["lng"].toString()
+			lon = e.target.getLatLng()["lng"].toString();
 			var lona = lon.split(".")[0];
 			var lonb = lon.split(".")[1].substring(0, 15);	//	Limit the decimal amount
 			lon = lona + "." + lonb;
@@ -230,7 +237,7 @@ function addMarker(i) {
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
-	console.log("MARKER ADDED:", i["name"]);
+	// console.log("MARKER ADDED:", i["name"]);
 };
 
 // Messaging popup show
@@ -253,8 +260,8 @@ function showDpEditPopup() {
 
 // Keep location for new marker in memory
 function updateUserMarkerLocation(e) {
-	var lat = e.target.getLatLng()["lat"];
-	var lon = e.target.getLatLng()["lng"];
+	lat = e.target.getLatLng()["lat"];
+	lon = e.target.getLatLng()["lng"];
 	$('input[name="lat"]').val(lat);
 	$('input[name="lon"]').val(lon);
 	console.log("TARGET FOR MARKER:", lat, lon);
@@ -268,23 +275,22 @@ function updateDPPopup(id) {
 		console.log("DP VIEW UPDATE: GET RESPONSE:", dbResponse.responseJSON);
 		var dp = dbResponse.responseJSON[id];
 		if (dp == null) {
-			var la = id.split(";")[0];
-			var lo = id.split(";")[1];
-			console.log("NEW DATAPOINT:", la, lo);
-			$("#marker-edit-form #lat").val(la);
-			$("#marker-edit-form #lon").val(lo);
+			lat = id.split(";")[0];
+			lon = id.split(";")[1];
+			console.log("NEW DATAPOINT:", lat, lon);
+			$("#marker-edit-form #lat").val(lat);
+			$("#marker-edit-form #lon").val(lon);
 			$("#marker-edit-form #new").val("true");
 			$("#marker-edit-form .role-select").prop("checked", false);
 			$("#marker-edit-form .role-select").show();
-
 			$("#marker-edit-form #name").val("");
 			$("#marker-edit-form #summary").val("");
 			$("#marker-edit-form #description").val("");
 			$("#marker-edit-form #radius").val(1000);
 			return;
 		}
+
 		console.log("UPDATING THE VIEW WITH:", dp)
-		// Form fields
 		$("#marker-edit-form #new").val("false");
 		if (dp["role"] == "infected") {
 			$("#marker-edit-form #need").prop("checked", true);
@@ -294,14 +300,12 @@ function updateDPPopup(id) {
 			$("#marker-edit-form #offer").prop("checked", true);
 		};
 		$("#marker-edit-form .role-select").hide();
-
 		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
 		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
 		$("#marker-edit-form #name").val(dp["name"]);
 		$("#marker-edit-form #summary").val(dp["summary"]);
 		$("#marker-edit-form #description").val(dp["description"]);
 		$("#marker-edit-form #radius").val(dp["radius"]);
-		// Datapoint view
 		$("#datapoint-popup #name").text(dp["name"]);
 		$("#datapoint-popup #role").text(dp["role"]);
 		$("#datapoint-popup #summary").text(dp["summary"]);
@@ -310,7 +314,6 @@ function updateDPPopup(id) {
 	})
 	.fail(function() {
 		console.log("DP VIEW UPDATE: GET FAILED FOR", id);
-		// Change title and other datapoint info
 		$("#marker-edit-form #new").val("true");
 		$("#marker-edit-form #lat").val("");
 		$("#marker-edit-form #lon").val("");
@@ -330,30 +333,59 @@ function updateDPPopup(id) {
 */
 /*
 */
-/*
-*/
 
 // Setup map
-var mymap = L.map('mapid', { zoomControl: false,}).setView([61, 23.5], 7);
+var zoomLevel = 10;
+var lat = 61;
+var lon = 23.5;
+
+var minZoom = 3;
+var maxZoom = 14;
+
+var mymap = L.map('mapid', { zoomControl: false,}).setView([lat, lon], zoomLevel)
+	.on("moveend", function() {
+		console.log("moveend");
+		latlon = mymap.getCenter();
+		lat = latlon.lat;
+		lon = latlon.lng;
+		zoomLevel = mymap.getZoom();
+		if (zoomLevel < minZoom -1) {
+			zoomLevel = minZoom;
+			mymap.setView([lat, lon], zoomLevel);
+		} else if (zoomLevel > maxZoom +1) {
+			zoomLevel =  maxZoom;
+			mymap.setView([lat, lon], zoomLevel);
+		};
+		history.pushState("testijuttu", "SOAPP", "/koronapu/?lat=" + lat.toString().substring(0,8) + "&lon=" + lon.toString().substring(0,8) + "&z=" + zoomLevel);
+	});
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	minZoom:			5,
-	maxZoom:			17,
-	id:						'mapbox/streets-v11',
-	tileSize:			512,
-	zoomOffset:		-1,
-	accessToken:	'pk.eyJ1IjoicGVra2FwbCIsImEiOiJjazd4ZmpoMmIwYmtrM21vMjh4bnhjMWpvIn0.CxDjgxDgvrojKDgP9fjfgA'
-}).addTo(mymap);
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		minZoom:      minZoom,
+		maxZoom:      maxZoom,
+		id:	          'mapbox/streets-v11',
+		tileSize:     512,
+		zoomOffset:   -1,
+		accessToken:  'pk.eyJ1IjoicGVra2FwbCIsImEiOiJjazd4ZmpoMmIwYmtrM21vMjh4bnhjMWpvIn0.CxDjgxDgvrojKDgP9fjfgA'
+	})
+	.addTo(mymap);
 
 var datapoint_list_url = "http://stash.pekka.pl:8080/api/datapoints.json";
-var pin_group		 	= new L.markerClusterGroup({singleMarkerMode: false});
-var circle_group	= new L.markerClusterGroup({singleMarkerMode: false});
+var pin_group          = new L.markerClusterGroup({singleMarkerMode: false});
+var circle_group       = new L.markerClusterGroup({singleMarkerMode: false});
 
 $(document).ready(function(e){
 	$("body").scrollTop(0);
-	centerToMyPosition();	// Center to users geolocation if available
-	// TODO:	Center to cordinates from url
-	// 	For example: 'koronapu/?lat=59.5&lon=24.8&z=12'
+
+	// Center to cordinates from url. Example URL: '/koronapu/?lat=59.5&lon=24.8&z=12'
+	var urlVars = getUrlVars();
+	console.log("URL VARS:", urlVars.lat, urlVars.lon, urlVars.z);
+	if (urlVars.lat != null && urlVars.lon != null) {
+		centerToPosition([urlVars.lat, urlVars.lon, urlVars.z]);
+	} else {
+		// Center to users geolocation if available
+		console.log(("NO URL VARS: TRYING GEOLOCATION"));
+		centerToMyPosition();
+	};
 	userMarker = L.marker(mymap.getCenter());
 	// setInterval(function(){ logMarkerLocation(); }, 1000); // DEBUG
 });
