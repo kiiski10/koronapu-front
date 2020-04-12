@@ -8,10 +8,15 @@ function isEmpty(str) {
 function getUrlVars() {
 	var vars = {};
 	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-	    vars[key] = value;
+		vars[key] = value;
 	});
 	return vars;
 }
+
+// For debugging. Call with 'setInterval(function(){ logMarkerLocation(); }, 1000);'
+function logMarkerLocation() {
+	console.log("DEBUG: MARKER LOCATION:", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
+};
 
 function generateSalt() {
 	var generateSalt = new Math.seedrandom(window.crypto.getRandomValues(new Uint32Array(1)));	// CSPRN seed
@@ -28,8 +33,8 @@ function generateSalt() {
 // Map centering
 function centerToPosition(position) {
 	// Center the map to selected position
-	//mymap.flyTo([position.coords.latitude, position.coords.longitude], 12);
-	mymap.panTo([position.coords.latitude, position.coords.longitude], 12);
+	mymap.flyTo([position.coords.latitude, position.coords.longitude], 11);
+	//mymap.panTo([position.coords.latitude, position.coords.longitude]); // No zooming
 }
 
 // Center the map to users geolocation
@@ -38,25 +43,25 @@ function centerToMyPosition() {
 }
 
 var newMarkerIcon = L.icon({
-	iconUrl: 			'img/new-location.png',
-	iconSize:     [128, 128],	// size of the icon
-	iconAnchor:   [65, 124],	// point of the icon which will correspond to marker's location
-	popupAnchor:  [0, 0]			// point from which the popup should open relative to the iconAnchor
+	iconUrl:			'img/new-location.png',
+	iconSize:			[128, 128],	// size of the icon
+	iconAnchor:		[65, 124],	// point of the icon which will correspond to marker's location
+	popupAnchor:	[0, 0]			// point from which the popup should open relative to the iconAnchor
 });
 
 function userAddMarker() {
 	$.geolocation.get().done(mymap.setTo).fail(noLocation);
-	lat = mymap.getCenter().lat; // DONT get 'lat', 'lon' from 'mymap'
-	lng = mymap.getCenter().lng; // DONT get 'lat', 'lon' from 'mymap'
+	lat = mymap.getCenter().lat;
+	lng = mymap.getCenter().lng;
 	updateDPPopup(lat + ";" + lng);
 	console.log("ADD MARKER");
-	console.log("  ", lat);
-	console.log("  ", lng);
+	console.log("	", lat);
+	console.log("	", lng);
 
 	mymap.flyTo([lat, lng], 13);
 	mymap.closePopup();
 
-	if (userMarker != undefined) {
+	if (userMarker != undefined) { // Remove old userMarker
 		userMarker.remove();
 	};
 
@@ -68,21 +73,12 @@ function userAddMarker() {
 		})
 		.on('dragend', updateUserMarkerLocation)
 		.on("click", function() {
-			console.log("CLICK ON userMarker");
 			var id = lat + ";" + lng;
+			console.log("CLICK ON MARKER ID:", id);
 			updateDPPopup(id);
-			//$('#marker-edit-frame').show();
 			showDpEditPopup();
 		})
 		.addTo(mymap)
-		/*.bindPopup($('#marker-edit-frame').html(),
-			{
-				maxWidth: 290, // Too big value hides the Send button on small screens
-				maxHeight: 400,
-				closeOnClick: false,
-				keepInView: true,
-			}
-		);*/
 		userMarker.setLatLng([lat, lng]);
 }
 
@@ -142,44 +138,40 @@ function validateMarkerEditForm() {
 	};
 
 	console.log("VALID FORM FOR:", lat, lon);
-	console.log("    IS NEW:", isNew);
-	console.log("    SEND TO:", postUrl);
-	console.log("    SALT:", salt);
-	console.log("    HASH:", hash);
+	console.log("	IS NEW:", isNew);
+	console.log("	SEND TO:", postUrl);
+	console.log("	SALT:", salt);
+	console.log("	HASH:", hash);
 
 	var dpValues = {
-		"role":			role,
-		"new": 		isNew,
-		"title": 		document.forms["markerEditForm"]["title"].value,
-		"summary": 		document.forms["markerEditForm"]["summary"].value,
+		"role":					role,
+		"new": 					isNew,
+		"title": 				document.forms["markerEditForm"]["title"].value,
+		"summary": 			document.forms["markerEditForm"]["summary"].value,
 		"description": 	document.forms["markerEditForm"]["description"].value,
-		"location":		[lat, lon],
-		"radius": 		parseInt(document.forms["markerEditForm"]["radius"].value),
-		"name": 		document.forms["markerEditForm"]["name"].value,
-		"passhash": 	hash
+		"location":			[lat, lon],
+		"radius": 			parseInt(document.forms["markerEditForm"]["radius"].value),
+		"name": 				document.forms["markerEditForm"]["name"].value,
+		"passhash": 		hash
 	};
 
-		console.log("POSTING:", dpValues);
-
+	console.log("POSTING:", dpValues);
 	$.post(postUrl, {
-		"location": dpValues["location"],
-		"role": dpValues["role"],
-		"name": dpValues["name"],
-		"summary": dpValues["summary"],
-		"description": dpValues["description"],
-		"radius": dpValues["radius"]
-	}, console.log).done(function() {
-		console.log("    POST DONE");
+		"location": 		dpValues["location"],
+		"role":					dpValues["role"],
+		"name":					dpValues["name"],
+		"summary":			dpValues["summary"],
+		"description":	dpValues["description"],
+		"radius": 			dpValues["radius"]
+	}).done(function() {
+		console.log("POST DONE");
 		location.reload();							// TODO: reload only markers, not whole page
 	});
 };
 
 function closeNewMarkerEditor() {
-	console.log("MARKER EDIT: CANCEL");
+	console.log("MARKER EDIT: HIDE");
 	$("#marker-edit-frame").hide();
-	//mymap.closePopup();
-	//mymap.removeLayer(userMarker);
-	//userMarker = L.marker(mymap.getCenter());
 };
 
 function noLocation(error) {
@@ -199,29 +191,36 @@ function noLocation(error) {
 	};
 };
 
-// 																				Add markers for infected users
-function addAsInfectedMarker(i) {
+// 																				Add markers for all datapoints
+function addMarker(i) {
+	circleColors = ["rgb(255, 0, 0)", "rgb(0, 255, 0)"];
+	if (i["role"] == "infected") {
+		var cColor = circleColors[0];
+	} else if (i["role"] == "helpers") {
+		var cColor = circleColors[1];
+	};
+
 	L.circle(i["location"], {
-		color: 'black',
-		weight: 1,
-		fillColor: 'rgb(255, 0, 0)',
-		fillOpacity: 0.1,
-		radius: i["radius"]
+		color:				'black',
+		weight:				1,
+		fillColor:		cColor,
+		fillOpacity:	0.1,
+		radius:				i["radius"]
 	})
 	.addTo(circle_group);
 	L.marker(i["location"])
 		.on('click', function(e) {
 			popup = e.target.getPopup();
-			console.log("CLICK ON MARKER");
+			console.log("CLICK ON: '" + i["role"] + "' MARKER");
 
 			var lat = e.target.getLatLng()["lat"].toString()
 			var lata = lat.split(".")[0];
-			var latb = lat.split(".")[1].substring(0, 15);
+			var latb = lat.split(".")[1].substring(0, 15);	//	Limit the decimal amount
 			lat = lata + "." + latb;
 
 			var lon = e.target.getLatLng()["lng"].toString()
 			var lona = lon.split(".")[0];
-			var lonb = lon.split(".")[1].substring(0, 15);
+			var lonb = lon.split(".")[1].substring(0, 15);	//	Limit the decimal amount
 			lon = lona + "." + lonb;
 
 			var id = lat + ";" + lon;
@@ -231,41 +230,7 @@ function addAsInfectedMarker(i) {
 		.bindPopup($('#datapoint-popup').html(),
 		{ keepInView: true }
 	);
-	// console.log("Sick Added:", i["name"]);
-};
-
-// 																				Add markers for helpers
-function addAsHelperMarker(i) {
-	L.circle(i["location"], {
-		color: 'black',
-		weight: 1,
-		fillColor: 'rgb(0, 255, 0)',
-		fillOpacity: 0.1,
-		radius: i["radius"]
-	}).addTo(circle_group);
-	L.marker(i["location"])
-		.on('click', function(e) {
-			popup = e.target.getPopup();;
-			console.log("CLICK ON MARKER");
-
-			var lat = e.target.getLatLng()["lat"].toString()
-			var lata = lat.split(".")[0];
-			var latb = lat.split(".")[1].substring(0, 15);
-			lat = lata + "." + latb;
-
-			var lon = e.target.getLatLng()["lng"].toString()
-			var lona = lon.split(".")[0];
-			var lonb = lon.split(".")[1].substring(0, 15);
-			lon = lona + "." + lonb;
-
-			var id = lat + ";" + lon;
-			updateDPPopup(id);
-		})
-		.addTo(pin_group)
-		.bindPopup($('#datapoint-popup').html(),
-		{ keepInView: true }
-	);
-	// console.log("Helper added:", i["name"]);
+	console.log("MARKER ADDED:", i["name"]);
 };
 
 // Messaging popup show
@@ -292,7 +257,6 @@ function updateUserMarkerLocation(e) {
 	var lon = e.target.getLatLng()["lng"];
 	$('input[name="lat"]').val(lat);
 	$('input[name="lon"]').val(lon);
-	userMarker.setLatLng(e.target.getLatLng());
 	console.log("TARGET FOR MARKER:", lat, lon);
 };
 
@@ -317,7 +281,6 @@ function updateDPPopup(id) {
 			$("#marker-edit-form #summary").val("");
 			$("#marker-edit-form #description").val("");
 			$("#marker-edit-form #radius").val(1000);
-
 			return;
 		}
 		console.log("UPDATING THE VIEW WITH:", dp)
@@ -363,93 +326,48 @@ function updateDPPopup(id) {
 	});
 };
 
-function updateLayers() {
-	var currentZoom = mymap.getZoom();
-	if (currentZoom <= 10) {
-		// console.log("zoomlevel", currentZoom);
-		mymap.removeLayer(circle_group);
-	} else {
-		// console.log("zoomlevel", currentZoom);
-		mymap.addLayer(circle_group);
-	};
-};
-
-function logMarkerLocation() { // For debug purposes. call with 'setInterval(function(){ logMarkerLocation(); }, 1000);'
-	console.log("DEBUG: MARKER LOCATION:", userMarker.getLatLng()["lat"], userMarker.getLatLng()["lng"]);
-};
-
-
 /*
 */
 /*
 */
 /*
 */
-
 
 // Setup map
-var mymap = L.map('mapid', { zoomControl: false,}).setView([62.38, 22.66], 5);
+var mymap = L.map('mapid', { zoomControl: false,}).setView([61, 23.5], 7);
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-	minZoom: 5,
-	maxZoom: 17,
-	id: 'mapbox/streets-v11',
-	tileSize: 512,
-	zoomOffset: -1,
-	accessToken: 'pk.eyJ1IjoicGVra2FwbCIsImEiOiJjazd4ZmpoMmIwYmtrM21vMjh4bnhjMWpvIn0.CxDjgxDgvrojKDgP9fjfgA'
+	minZoom:			5,
+	maxZoom:			17,
+	id:						'mapbox/streets-v11',
+	tileSize:			512,
+	zoomOffset:		-1,
+	accessToken:	'pk.eyJ1IjoicGVra2FwbCIsImEiOiJjazd4ZmpoMmIwYmtrM21vMjh4bnhjMWpvIn0.CxDjgxDgvrojKDgP9fjfgA'
 }).addTo(mymap);
 
-mymap.on('zoomend', function (e) {
-	updateLayers();
-});
-
-var helpers = [];
-//var helpers_list_url = "https://kalasivut.net/koronapu/data/helpers.json";
-var helpers_list_url = "http://stash.pekka.pl:8080/api/helpers.json";
-var infected = [];
-//var infected_list_url = "https://kalasivut.net/koronapu/data/infected.json";
-var infected_list_url = "http://stash.pekka.pl:8080/api/infected.json";
-
-var pin_group = new L.markerClusterGroup({singleMarkerMode: false});
-var circle_group = new L.FeatureGroup();
-
+var datapoint_list_url = "http://stash.pekka.pl:8080/api/datapoints.json";
+var pin_group		 	= new L.markerClusterGroup({singleMarkerMode: false});
+var circle_group	= new L.markerClusterGroup({singleMarkerMode: false});
 
 $(document).ready(function(e){
-	// $("#datapoint-popup").show();
 	$("body").scrollTop(0);
-	centerToMyPosition();
+	centerToMyPosition();	// Center to users geolocation if available
+	// TODO:	Center to cordinates from url
+	// 	For example: 'koronapu/?lat=59.5&lon=24.8&z=12'
 	userMarker = L.marker(mymap.getCenter());
-
-	console.log("SET INTERVAL FOR DEBUG");
-	setInterval(function(){ logMarkerLocation(); }, 1000); // DEBUG
+	// setInterval(function(){ logMarkerLocation(); }, 1000); // DEBUG
 });
 
-
-// Fetch the list of infected markers
-var response = $.getJSON( infected_list_url, function() {})
+// Fetch the list of datapoints
+var response = $.getJSON( datapoint_list_url, function() {})
 	.done(function() {
 		for (var index in response["responseJSON"]) {
-			addAsInfectedMarker(response["responseJSON"][index]);
+			addMarker(response["responseJSON"][index]);
 		};
 		mymap.addLayer(pin_group);
 		mymap.addLayer(circle_group);
-		console.log("MARKERS ADDED FROM:", infected_list_url);
+		console.log("DONE ADDING FROM:", datapoint_list_url);
 	})
 	.fail(function() {
-		console.log("ERROR: CANT GET MARKERS FROM:", infected_list_url);
+		console.log("ERROR: CANT GET MARKERS FROM:", datapoint_list_url);
 	})
-
-
-// Fetch the list of helper markers
-var response2 = $.getJSON( helpers_list_url, function() {})
-	.done(function() {
-		for (var index in response2["responseJSON"]) {
-			addAsHelperMarker(response2["responseJSON"][index]);
-		};
-		mymap.addLayer(pin_group);
-		mymap.addLayer(circle_group);
-		console.log("MARKERS ADDED FROM:", helpers_list_url);
-	})
-	.fail(function() {
-		console.log("ERROR: CANT GET MARKERS FROM:", helpers_list_url);
-	});

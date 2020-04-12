@@ -193,7 +193,6 @@ h4 {
 	margin: auto;
 	padding: 10px;
 	font-size: 17px;
-
 }
 
 .header {
@@ -204,6 +203,23 @@ h4 {
 	background-image: url('../img/soapp.png');
 	background-repeat: no-repeat;
 	background-size: auto 80%;
+}
+
+.header-menu .menu-button {
+	height: 40px;
+	width: 40px;
+	background-image: url("../img/add.png");
+	background-size: 85%;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.header-menu #location {
+	background-image: url("../img/location.png");
+}
+
+.header-menu #add {
+	background-image: url("../img/add.png");
 }
 
 #mapid {
