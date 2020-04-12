@@ -33,10 +33,10 @@ function generateSalt() {
 // Center the map to selected position
 function centerToPosition(position) {
 	if (position.coords != null) {
-		//mymap.panTo([position.coords.latitude, position.coords.longitude]); // No zooming
-		mymap.flyTo([position.coords["latitude"], position.coords["longitude"]], 10);
+		console.log("FLY TO:", position)
+		mymap.flyTo([position.coords["latitude"], position.coords["longitude"]], 13);
 	} else {
-		console.log("POSITION ZOOM:", position)
+		console.log("SET MAP TO:", position)
 		if ( position[2] != null) {
 			zoomLevel = position[2];
 		};
@@ -57,22 +57,29 @@ var newMarkerIcon = L.icon({
 });
 
 function userAddMarker() {
-	$.geolocation.get().done(mymap.setTo).fail(noLocation);
 	lat = mymap.getCenter().lat;
-	lng = mymap.getCenter().lng;
-	updateDPPopup(lat + ";" + lng);
+	lon = mymap.getCenter().lng;
+
+	if (zoomLevel < 14 || zoomLevel > 14) {	// Zoom to get all decimals to 'lat' and 'lon'
+		mymap.flyTo([lat, lon], 14);
+	} else {
+		mymap.flyTo([lat, lon], 13);
+	}
+
+	lat = mymap.getCenter().lat;
+	lon = mymap.getCenter().lng;
+	updateDPPopup(lat + ";" + lon);
 	console.log("ADD MARKER");
 	console.log("	", lat);
-	console.log("	", lng);
+	console.log("	", lon);
 
-	mymap.flyTo([lat, lng], 13);
 	mymap.closePopup();
 
 	if (userMarker != undefined) { // Remove old userMarker
 		userMarker.remove();
 	};
 
-	userMarker = L.marker([lat, lng],
+	userMarker = L.marker([lat, lon],
 		{
 			draggable: true,
 			autoPan: true,
@@ -80,13 +87,13 @@ function userAddMarker() {
 		})
 		.on('dragend', updateUserMarkerLocation)
 		.on("click", function() {
-			var id = lat + ";" + lng;
+			var id = lat + ";" + lon;
 			console.log("CLICK ON MARKER ID:", id);
 			updateDPPopup(id);
 			showDpEditPopup();
 		})
 		.addTo(mymap);
-		userMarker.setLatLng([lat, lng]);
+		userMarker.setLatLng([lat, lon]);
 }
 
 //// ////
@@ -264,6 +271,7 @@ function updateUserMarkerLocation(e) {
 	lon = e.target.getLatLng()["lng"];
 	$('input[name="lat"]').val(lat);
 	$('input[name="lon"]').val(lon);
+	updateDPPopup(lat + ";" + lon)
 	console.log("TARGET FOR MARKER:", lat, lon);
 };
 
@@ -310,7 +318,14 @@ function updateDPPopup(id) {
 		$("#datapoint-popup #role").text(dp["role"]);
 		$("#datapoint-popup #summary").text(dp["summary"]);
 		$("#datapoint-popup #description").text(dp["description"]);
-		popup.setContent($('#datapoint-popup').html());
+		
+		if (typeof(popup) != "undefined") {
+			popup.setContent($('#datapoint-popup').html());
+		} else {
+			console.log("ERROR: INVALID MARKER LOCATION");
+			mymap.removeLayer(userMarker);
+			alert("Bad location.\nTry again after moving the map a bit.");
+		};
 	})
 	.fail(function() {
 		console.log("DP VIEW UPDATE: GET FAILED FOR", id);
@@ -335,10 +350,9 @@ function updateDPPopup(id) {
 */
 
 // Setup map
-var zoomLevel = 10;
+var zoomLevel = 4;
 var lat = 61;
 var lon = 23.5;
-
 var minZoom = 4;
 var maxZoom = 16;
 
@@ -352,16 +366,30 @@ var mymap = L.map('mapid', {
 		lat = latlon.lat;
 		lon = latlon.lng;
 		zoomLevel = mymap.getZoom();
-		if (zoomLevel < minZoom -1) {
+		if (zoomLevel < minZoom) {
 			zoomLevel = minZoom;
 			mymap.setView([lat, lon], zoomLevel);
-		} else if (zoomLevel > maxZoom +1) {
+		} else if (zoomLevel > maxZoom) {
 			zoomLevel =  maxZoom;
 			mymap.setView([lat, lon], zoomLevel);
 		};
 		var url = "/koronapu/?lat=" + lat.toString().substring(0,7) + "&lon=" + lon.toString().substring(0,7) + "&z=" + zoomLevel;
-		history.replaceState(url, "", url);
+		history.replaceState("", "", url);
 	});
+
+
+	// Center to cordinates from url. Example URL: '/koronapu/?lat=59.5&lon=24.8&z=12'
+	var urlVars = getUrlVars();
+	console.log("URL VARS:", urlVars.lat, urlVars.lon, urlVars.z);
+	if (urlVars.lat != null && urlVars.lon != null) {
+		centerToPosition([urlVars.lat, urlVars.lon, urlVars.z]);
+	} else {
+		// Center to users geolocation if available
+		console.log(("NO URL VARS: TRYING GEOLOCATION"));
+		centerToMyPosition();
+	};
+
+
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 		minZoom:      minZoom,
@@ -379,17 +407,6 @@ var circle_group       = new L.markerClusterGroup({singleMarkerMode: false});
 
 $(document).ready(function(e){
 	$("body").scrollTop(0);
-
-	// Center to cordinates from url. Example URL: '/koronapu/?lat=59.5&lon=24.8&z=12'
-	var urlVars = getUrlVars();
-	console.log("URL VARS:", urlVars.lat, urlVars.lon, urlVars.z);
-	if (urlVars.lat != null && urlVars.lon != null) {
-		centerToPosition([urlVars.lat, urlVars.lon, urlVars.z]);
-	} else {
-		// Center to users geolocation if available
-		console.log(("NO URL VARS: TRYING GEOLOCATION"));
-		centerToMyPosition();
-	};
 	userMarker = L.marker(mymap.getCenter());
 	// setInterval(function(){ logMarkerLocation(); }, 1000); // DEBUG
 });
