@@ -60,10 +60,10 @@ function userAddMarker() {
 	lat = mymap.getCenter().lat;
 	lon = mymap.getCenter().lng;
 
-	if (zoomLevel < 14 || zoomLevel > 14) {	// Zoom to get all decimals to 'lat' and 'lon'
-		mymap.flyTo([lat, lon], 14);
+	if (zoomLevel < 15 || zoomLevel > 15) {	// Zoom to get all decimals to 'lat' and 'lon'
+		mymap.flyTo([lat, lon], 15);
 	} else {
-		mymap.flyTo([lat, lon], 13);
+		mymap.flyTo([lat, lon], 14);
 	}
 
 	lat = mymap.getCenter().lat;
@@ -145,10 +145,10 @@ function validateMarkerEditForm() {
 
 	if (isNew == "true") {
 		// This url creates new datapoints
-		postUrl = "http://stash.pekka.pl:8080/api/" + role + ".json";
+		postUrl = config.backend.host + "/api/" + role + ".json";
 	} else {
 		// This url edits
-		var postUrl = "http://stash.pekka.pl:8080/api/datapoints.json?id=" + lat + ";" + lon;
+		var postUrl = config.backend.host + "/api/datapoints.json?id=" + lat + ";" + lon;
 	};
 
 	console.log("VALID FORM FOR:", lat, lon);
@@ -278,7 +278,7 @@ function updateUserMarkerLocation(e) {
 // Populate edit form values and popup view
 function updateDPPopup(id) {
 	console.log("DP VIEW UPDATE:", id);
-	var dbResponse = $.get( "http://stash.pekka.pl:8080/api/datapoints.json?id=" + id, function() {})
+	var dbResponse = $.get( config.backend.host + "/api/datapoints.json?id=" + id, function() {})
 		.done(function() {
 		console.log("DP VIEW UPDATE: GET RESPONSE:", dbResponse.responseJSON);
 		var dp = dbResponse.responseJSON[id];
@@ -318,7 +318,7 @@ function updateDPPopup(id) {
 		$("#datapoint-popup #role").text(dp["role"]);
 		$("#datapoint-popup #summary").text(dp["summary"]);
 		$("#datapoint-popup #description").text(dp["description"]);
-		
+
 		if (typeof(popup) != "undefined") {
 			popup.setContent($('#datapoint-popup').html());
 		} else {
@@ -354,7 +354,7 @@ var zoomLevel = 4;
 var lat = 61;
 var lon = 23.5;
 var minZoom = 4;
-var maxZoom = 16;
+var maxZoom = 23;
 
 var mymap = L.map('mapid', {
 		zoomControl: false,
@@ -397,11 +397,12 @@ var mymap = L.map('mapid', {
 		id:	          'mapbox/streets-v11',
 		tileSize:     512,
 		zoomOffset:   -1,
-		accessToken:  'pk.eyJ1IjoicGVra2FwbCIsImEiOiJjazd4ZmpoMmIwYmtrM21vMjh4bnhjMWpvIn0.CxDjgxDgvrojKDgP9fjfgA'
+		accessToken:  config.tile_server.access_token
 	})
 	.addTo(mymap);
 
-var datapoint_list_url = "http://stash.pekka.pl:8080/api/datapoints.json";
+
+var datapoint_list_url = config.backend.host + "/api/datapoints.json"; // https gives 'ERR_SSL_PROTOCOL_ERROR' on chromium
 var pin_group          = new L.markerClusterGroup({singleMarkerMode: false});
 var circle_group       = new L.markerClusterGroup({singleMarkerMode: false});
 
