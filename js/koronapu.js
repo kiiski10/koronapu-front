@@ -185,7 +185,7 @@ function validateMarkerEditForm() {
 
 function closeNewMarkerEditor() {
 	console.log("MARKER EDIT: HIDE");
-	$("#marker-edit-frame").hide();
+	$("#marker-edit-container").hide();
 };
 
 function noLocation(error) {
@@ -262,7 +262,7 @@ function hideMessagingPopup() {
 //datapoint edit popup
 function showDpEditPopup() {
 	console.log("MARKER EDIT: SHOW");
-	$("#marker-edit-frame").show();
+	$("#marker-edit-container").show();
 };
 
 // Keep location for new marker in memory
@@ -286,6 +286,8 @@ function updateDPPopup(id) {
 			lat = id.split(";")[0];
 			lon = id.split(";")[1];
 			console.log("NEW DATAPOINT:", lat, lon);
+			// Clear edit form values
+
 			$("#marker-edit-form #lat").val(lat);
 			$("#marker-edit-form #lon").val(lon);
 			$("#marker-edit-form #new").val("true");
@@ -298,6 +300,7 @@ function updateDPPopup(id) {
 			return;
 		}
 
+		// Put values from datapoint to popup, editor and messaging views
 		console.log("UPDATING THE VIEW WITH:", dp)
 		$("#marker-edit-form #new").val("false");
 		if (dp["role"] == "infected") {
@@ -307,6 +310,14 @@ function updateDPPopup(id) {
 			$("#marker-edit-form #need").prop("checked", false);
 			$("#marker-edit-form #offer").prop("checked", true);
 		};
+
+		// Info popup
+		$("#datapoint-popup #name").text(dp["name"]);
+		$("#datapoint-popup #role").text(dp["role"]);
+		$("#datapoint-popup #summary").text(dp["summary"]);
+		$("#datapoint-popup #description").text(dp["description"]);
+
+		// Editor form
 		$("#marker-edit-form .role-select").hide();
 		$("#marker-edit-form #lat").val(dp["location"]["lat"]);
 		$("#marker-edit-form #lon").val(dp["location"]["lon"]);
@@ -314,10 +325,9 @@ function updateDPPopup(id) {
 		$("#marker-edit-form #summary").val(dp["summary"]);
 		$("#marker-edit-form #description").val(dp["description"]);
 		$("#marker-edit-form #radius").val(dp["radius"]);
-		$("#datapoint-popup #name").text(dp["name"]);
-		$("#datapoint-popup #role").text(dp["role"]);
-		$("#datapoint-popup #summary").text(dp["summary"]);
-		$("#datapoint-popup #description").text(dp["description"]);
+
+		// Messaging view
+		$("#messaging-popup-container .popup-title").text(dp["name"]);
 
 		if (typeof(popup) != "undefined") {
 			popup.setContent($('#datapoint-popup').html());
@@ -377,7 +387,6 @@ var mymap = L.map('mapid', {
 		history.replaceState("", "", url);
 	});
 
-
 	// Center to cordinates from url. Example URL: '/koronapu/?lat=59.5&lon=24.8&z=12'
 	var urlVars = getUrlVars();
 	console.log("URL VARS:", urlVars.lat, urlVars.lon, urlVars.z);
@@ -388,7 +397,6 @@ var mymap = L.map('mapid', {
 		console.log(("NO URL VARS: TRYING GEOLOCATION"));
 		centerToMyPosition();
 	};
-
 
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -401,8 +409,7 @@ var mymap = L.map('mapid', {
 	})
 	.addTo(mymap);
 
-
-var datapoint_list_url = config.backend.host + "/api/datapoints.json"; // https gives 'ERR_SSL_PROTOCOL_ERROR' on chromium
+var datapoint_list_url = config.backend.host + "/api/datapoints.json";
 var pin_group          = new L.markerClusterGroup({singleMarkerMode: false});
 var circle_group       = new L.markerClusterGroup({singleMarkerMode: false});
 

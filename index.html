@@ -14,7 +14,7 @@
 		<link rel="stylesheet" href="css/koronapu.css">
 	</head>
 	<body>
-		<div class="header">
+		<div id="header">
 			<div class="header-menu">
 				<button onclick="centerToMyPosition()" id="location" class="menu-button"></button>
 				<button onclick="userAddMarker()" id="add" class="menu-button"></button>
@@ -23,10 +23,10 @@
 		<div id="mapid"></div>
 
 		<div id="messaging-popup-container">
-			<h3>Viestit</h3>
+			<div class="popup-title"></div>
 			<button class="close-messaging-button" onclick="hideMessagingPopup()"> </button>
-			<textarea id="conversation-view" placeholder="Ei viestejä käyttäjän '**TODO**' kanssa." readonly></textarea>
-			<input id="message-textarea" placeholder="Kirjoita viesti tähän" type="textarea"></input><br>
+			<textarea class="conversation-textarea" placeholder="" readonly></textarea>
+			<input class="new-message-textarea" placeholder="Kirjoita viesti tähän" type="textarea"></input><br>
 			<button class="send-button" onclick="msgSend()"></button><br>
 			<button class="like-button" onclick="like()"></button><br>
 			<button class="dislike-button" onclick="dislike()"></button><br>
@@ -34,7 +34,7 @@
 
 
 		<!-- marker edit popup -->
-		<div id="marker-edit-frame">
+		<div id="marker-edit-container">
 			<form id="marker-edit-form" name="markerEditForm" method="post">
 				<div class="role-select">Tarvitsen apua</div>
 				<input type='radio' class="role-select" id='need' name='role'<br>
@@ -63,22 +63,19 @@
 		</div>
 
 		<div id="datapoint-popup">
-			<div id="name">name</div>
-			<div id="role">role</div>
-			<div id="summary">summary</div>
-			<div id="description">description</div>
-			<div>
-				<button onclick='showMessagingPopup()' id="datapoint-messaging-open-button"></button>
-				<button onclick='showDpEditPopup()' id="datapoint-start-edit-button"></button>
-			</div>
+			<div id="name"><img src="img/loading.gif"></div>			
+			<div id="role"></div>
+			<div id="summary"></div>
+			<div id="description"></img></div>
+			<button onclick='showMessagingPopup()' class="show-messaging-button"></button>
+			<button onclick='showDpEditPopup()' class="show-editor-button"></button>
 		</div>
 
-
 		<script src="https://code.jquery.com/jquery-3.4.1.min.js"
-				integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-				crossorigin="anonymous"></script>
+			integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+			crossorigin="anonymous"></script>
 		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-				crossorigin="anonymous"></script>
+			crossorigin="anonymous"></script>
 		<script src="js/markercluster.js"></script>
   	<script src="js/geoLocation.js"></script>
 
@@ -90,7 +87,6 @@
 			 * https://github.com/blueimp/jQuery-MD5
 		-->
 		<script src="js/md5.js"></script>
-
 		<script src="js/koronapu.js"></script>
 	</body>
 </html>
